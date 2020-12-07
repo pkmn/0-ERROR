@@ -1,0 +1,31 @@
+---
+name: Improvement
+about: Provide an improvement for this project
+title: ''
+labels: feature
+assignees: ''
+
+---
+
+**Please describe your improvement:**
+
+A clear and concise description of what the pull request contains.
+
+**Feature Request:**
+
+If this contains an implementation for an existing feature request, please link that here. If this
+pull request is for a feature which has not yet been proposed and discussed please add:
+
+- a clear and concise description of what the problem is you are trying to solve is
+- a clear and concise description of any alternative solutions or features you've considered
+
+**Checklist:**
+
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation where necessary
+- [ ] My changes generate no new warnings
+- [ ] Any dependent changes have been merged and published in downstream modules
+- [ ] I have split off unrelated changes into their own PRs and done my best to make this PR as
+      focused as possible while still being useful
