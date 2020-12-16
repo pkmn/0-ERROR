@@ -1,0 +1,16 @@
+- testing code which runs agents against each other with various params to determine best params and effectiveness
+- logic to allow someone to play against a bot
+- multiple roots + join
+- parallel (by definition has multiple roots!)
+- stats to determine number of battles
+- total moves:
+  - singles:
+    - gen 1-5: 5 switches + 4 moves = 9
+    - gen 6-8 = 5 switches + 4 moves + 4 mega/z/max = 13
+  - doubles:
+    - gen 1-5: 4 switches + 3 switches + (4 moves x 4 targets) + (4 moves x 4 targets) = 39
+    - gen 6-8: 7 + (16x2) + (16x2) = 71 (only gen 7, else 55)
+- MCTS.update(action1, action2) => update root to advance game state by p1 and p2's moves
+- handle `wait` = dont make searches!
+- need to be able to play with player = 1 as `p1` or `p2`! = just multiply by -1
+- simulation rollouts need to mutate instead of `toJSON` round tripping
