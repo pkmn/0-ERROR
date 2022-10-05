@@ -20,6 +20,11 @@
 ## MCTS
 
 - [A Survey of Monte Carlo Tree Search Methods](papers/mcts-survey.pdf)
+- [Monte-Carlo Tree Search](papers/mcts.pdf)
+- [Monte Carlo Tree Search: a review of recent modifications
+and applications](papers/mcts-review.pdf)
+- [Efficient Selectivity and Backup Operators in
+Monte-Carlo Tree Search](papers/mcts-select.pdf)
 - [Information Set Monte Carlo Tree Search](papers/information-set-mcts.pdf)
 - [Multiple Tree for Partially Observable Monte-Carlo Tree Search](papers/multiple-pomcts.pdf)
 - [Monte-Carlo Tree Search for the Simultaneous Move Game Tron](papers/tron-mcts.pdf)
