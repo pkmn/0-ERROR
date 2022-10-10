@@ -1,0 +1,6 @@
+# Windows
+* text=auto
+*.zig text=auto eol=lf
+
+# Project
+*.db binary
