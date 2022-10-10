@@ -29,6 +29,9 @@
   applications](papers/mcts-review.pdf)
 - [Efficient Selectivity and Backup Operators in Monte-Carlo Tree Search](papers/mcts-select.pdf)
 - [Information Set Monte Carlo Tree Search](papers/information-set-mcts.pdf)
+- [Reducing the burden of knowledge: Simulation-based methods in imperfect information
+  games](http://www.aifactory.co.uk/newsletter/2013_01_reduce_burden.htm)
+  - [Information Set Monte Carlo Tree Search](https://gist.github.com/kjlubick/8ea239ede6a026a61f4d)
 - [Multiple Tree for Partially Observable Monte-Carlo Tree Search](papers/multiple-pomcts.pdf)
 - [Monte-Carlo Tree Search for the Simultaneous Move Game Tron](papers/tron-mcts.pdf)
 - [Monte Carlo Tree Search for Simultaneous Move Games: A Case Study in the Game of
@@ -42,6 +45,8 @@
 - [Thompson Sampling for Monte Carlo Tree Search and Maxi-min Action
   Identification](papers/mcts-thompson.pdf)
 - [Confidence Bound Algorithms in Game Trees](papers/mcts-cba.pdf)
+- [Understanding the Success of Perfect Information Monte Carlo Sampling in Game Tree
+  Search](papers/mcts-pimc.pdf)
 - [MCTS Based on Simple Regret](papers/mcts-regret.pdf)
 - [jbradberry/mcts](https://github.com/jbradberry/mcts)
 - [int8/monte-carlo-tree-search](https://github.com/int8/monte-carlo-tree-search)
@@ -72,6 +77,10 @@
 - [Regret Minimization in Games with Incomplete Information](papers/poker-regret.pdf)
 - [Chess Programming Wiki - Time Management](https://www.chessprogramming.org/Time_Management)
 - [Leela Chess — Test40, Test50, and beyond](https://medium.com/@veedrac/c15896becfac)
+- [Search in games with incomplete information: a case study using Bridge card
+  play](papers/bridge-study.pdf)
+- [Lower Bounding Klondike Solitaire with Monte-Carlo Planning](papers/klondike.pdf)
+- [Ensemble Monte-Carlo Planning: An Empirical Study](papers/ensemble-mc.pdf)
 
 ## Pokémon
 
@@ -90,4 +99,5 @@
 - [blue-sky-sea/Pokemon-MCTS-AI-Master](https://github.com/blue-sky-sea/Pokemon-MCTS-AI-Master)
 - [rameshvarun/showdownbot](https://github.com/rameshvarun/showdownbot)
   - [Percymon: A Pokemon Showdown Artificial Intelligence](papers/pkmn-percymon.pdf)
-  
+- [Implementation and Evaluation of Information Set Monte Carlo Tree Search for
+  Pokemon](papers/pkmn-ismcts.pdf)
