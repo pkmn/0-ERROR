@@ -23,4 +23,4 @@ dist/
 .parcel-cache/
 
 # Project
-src/lib/*/data/*.db
+src/lib/*/data/teams.db
