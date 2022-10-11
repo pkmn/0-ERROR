@@ -21,3 +21,6 @@ dist/
 .eslintcache
 .tsbuildinfo
 .parcel-cache/
+
+# Project
+src/lib/*/data/*.db
