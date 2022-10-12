@@ -155,7 +155,7 @@ if (require.main === module) {
       sh('tar', [
         'xf', path.join(root, month), '--strip-components=1', '-C', archives, `${format}/*.7z`,
       ]);
-
+      console.error(month);
       for (const archive of fs.readdirSync(archives)) {
         sh('7z', ['x', path.join(archives, archive), `-o${logs}`]);
         fs.unlinkSync(path.join(archives, archive));
