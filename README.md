@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="0-ERROR" width="488" height="488" src="https://pkmn.cc/0-ERROR.png" />
+  <img alt="0-ERROR" width="488" height="488" src="https://pkmn.cc/0-ERROR.png" style="image-rendering: pixelated" />
   <br />
   <br />
   <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode">
