@@ -6,6 +6,8 @@ import * as path from 'path';
 
 import {execFileSync} from 'child_process';
 
+import minimist from 'minimist';
+
 import {Generations, Generation, GenerationNum, PokemonSet} from '@pkmn/data';
 import {Dex} from '@pkmn/sim';
 
@@ -50,6 +52,23 @@ export const Sizes = {
   1: 5,
   2: 6,
 };
+
+export function *read(gen: Generation, options: {logs?: string}, usage: (m?: string) => void) {
+  if (!options.logs || !fs.existsSync(options.logs)) {
+    usage(options.logs ? `Invalid logs.db ${options.logs}` : '--logs not provided');
+  }
+
+  const db = fs.readFileSync(options.logs!);
+  const N = 6 * Sizes[gen.num as keyof typeof Sizes];
+  const row = 17 + 2 * N;
+  if (db.length % row !== 0) {
+    usage(`Corrupted logs.db of size ${db.length} (${row})`);
+  }
+
+  for (let i = 0; i < db.length; i += row) {
+    yield deserialize(gen, db, i);
+  }
+}
 
 function serialize(gen: Generation, log: Log) {
   if (gen.num >= 3) throw new Error(`Unsupported gen ${gen.num}`); // TODO
@@ -126,21 +145,22 @@ if (require.main === module) {
 
   const usage = (msg?: string): void => {
     if (msg) console.error(msg);
-    console.error('Usage: logs <GEN> <LOGS>');
+    console.error('Usage: logs --gen=<GEN> --logs=<LOGS>');
     process.exit(1);
   };
 
-  if (process.argv.length < 3 || +process.argv[2] < 1 || +process.argv > 8) {
-    usage(`Invalid gen ${process.argv[2]}`);
+  const argv = minimist(process.argv.slice(2));
+  if (!argv.gen || argv.gen < 1 || argv.gen > 8) {
+    usage(argv.gen ? `Invalid gen ${argv.gen as number}` : 'No --gen provided');
   }
   const gens = new Generations(Dex as any);
-  const gen = gens.get(+process.argv[2] as GenerationNum);
+  const gen = gens.get(argv.gen as GenerationNum);
+  if (gen.num >= 3) usage(`Unsupported gen ${gen.num}`); // TODO
   const format = `gen${gen.num}ou`;
 
-  if (process.argv.length < 4 || !fs.lstatSync(process.argv[3]).isDirectory()) {
-    usage(`Invalid logs directory ${process.argv[3]}`);
+  if (!argv.logs || !fs.lstatSync(argv.logs).isDirectory()) {
+    usage(argv.logs ? `Invalid logs directory ${argv.logs as string}` : '--logs not provided');
   }
-  const root = process.argv[3];
 
   let tmp;
   try {
@@ -151,9 +171,9 @@ if (require.main === module) {
     fs.mkdirSync(archives);
     fs.mkdirSync(logs);
 
-    for (const month of fs.readdirSync(root)) {
+    for (const month of fs.readdirSync(argv.logs)) {
       sh('tar', [
-        'xf', path.join(root, month), '--strip-components=1', '-C', archives, `${format}/*.7z`,
+        'xf', path.join(argv.logs, month), '--strip-components=1', '-C', archives, `${format}/*.7z`,
       ]);
       console.error(month);
       for (const archive of fs.readdirSync(archives)) {

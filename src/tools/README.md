@@ -4,7 +4,7 @@ This folder contains miscellaneous scripts and tools useful for working on 0 ERR
   [compressed](https://github.com/pkmn/stats/blob/main/tools/compress) archives of Pokémon Showdown
   battle logs into a compact binary format for a given generation:
 
-      $ npm run compile && node build/tools/logs <GEN> <LOGS>
+      $ npm run compile && node build/tools/logs --gen=<GEN> --logs=<LOGS>
 
   The `LOGS` argument expects a directory containing logs archived in the following format:
 
@@ -33,10 +33,10 @@ This folder contains miscellaneous scripts and tools useful for working on 0 ERR
 - [`teams.ts`](teams.ts): Produces a `teams.db` file of the `NUM` (default 10,000) top teams from
   `GEN` as found in the `LOGS` database (where the logs database is the output of `logs.ts`):
 
-      $ npm run compile && node build/tools/teams <GEN> <LOGS> <NUM?> > src/lib/gen<GEN>/data/teams.db
+      $ npm run compile && node build/tools/teams compute --gen=<GEN> --logs=<LOGS> --num=<NUM?> > src/lib/gen<GEN>/data/teams.db
 
   The resulting binary `teams.db` can then be inspected with the same tool:
 
-      $ npm run compile && node build/tools/teams <GEN>
+      $ npm run compile && node build/tools/teams display --gen=<GEN>
 
 - [`stats.ts`](stats.ts): TODO

@@ -3,32 +3,35 @@ import 'source-map-support/register';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import {Generations, Generation, GenerationNum, PokemonSet} from '@pkmn/data';
+import minimist from 'minimist';
+
+import {Generations, GenerationNum, PokemonSet} from '@pkmn/data';
 import {Dex} from '@pkmn/sim';
 
-import {Sizes, deserialize} from './logs';
+import {Sizes, read} from './logs';
 import {encode, decode} from './sets';
 
 const usage = (msg?: string): void => {
   if (msg) console.error(msg);
-  console.error('Usage: teams <GEN> <LOGS?> <NUM?>');
+  console.error('Usage: teams <display|compute> --gen=<GEN> --logs=<LOGS?> --num=<NUM?>');
   process.exit(1);
 };
 
-const display = (gen: Generation, team: Partial<PokemonSet>[]) => gen.num === 1
-  ? team.map(s => `${s.species!}|${s.moves!.join(',')}`).join(']')
-  : team.map(s => `${s.species!}|${s.item || ''}|${s.moves!.join(',')}`).join(']');
+if (process.argv.length < 3) usage();
+const cmd = process.argv[2];
+const argv = minimist(process.argv.slice(3), {default: {num: 10000}});
 
-if (process.argv.length < 3 || +process.argv[2] < 1 || +process.argv > 8) {
-  usage(`Invalid gen ${process.argv[2]}`);
+if (!argv.gen || argv.gen < 1 || argv.gen > 8) {
+  usage(argv.gen ? `Invalid gen ${argv.gen as number}` : 'No --gen provided');
 }
 const gens = new Generations(Dex as any);
-const gen = gens.get(+process.argv[2] as GenerationNum);
+const gen = gens.get(argv.gen as GenerationNum);
 if (gen.num >= 3) usage(`Unsupported gen ${gen.num}`); // TODO
 
 const N = 6 * Sizes[gen.num as keyof typeof Sizes];
 
-if (process.argv.length === 3) {
+switch (cmd) {
+case 'display': {
   const db = fs.readFileSync(
     path.resolve(__dirname, '..', '..', 'src', 'lib', `gen${gen.num}`, 'data', 'teams.db')
   );
@@ -37,43 +40,29 @@ if (process.argv.length === 3) {
   }
 
   for (let i = 0; i < db.length; i += N) {
-    console.log(display(gen, decode(gen, db, i)));
+    console.log(JSON.stringify(decode(gen, db, i)));
   }
-} else {
-  if (process.argv.length < 4 || !fs.existsSync(process.argv[3])) {
-    usage(`Invalid logs.db ${process.argv[3]}`);
-  }
-
-  const db = fs.readFileSync(process.argv[3]);
-  const row = 17 + 2 * N;
-  if (db.length % row !== 0) {
-    usage(`Corrupted logs.db of size ${db.length} (${row})`);
-  }
-
-  let num = 10000;
-  if (process.argv.length > 4) {
-    if (process.argv.length > 5) usage();
-    num = +process.argv[4];
-    if (isNaN(num)) usage(`Invalid num ${process.argv[4]}`);
-  }
-
-  const TEAMS: {[team: string]: number} = {};
-  for (let i = 0; i < db.length; i += row) {
-    const data = deserialize(gen, db, i);
+  break;
+}
+case 'compute': {
+  const TEAMS: { [team: string]: number } = {};
+  for (const data of read(gen, argv as {logs?: string}, usage)) {
     for (const player of [data.winner, data.loser]) {
       const rating = player.rating ? player.rating.rpr - player.rating.rprd : 0;
-      const team = display(gen, player.team);
+      const team = gen.num === 1
+        ? player.team.map(s => `${s.species!}|${s.moves!.join(',')}`).join(']')
+        : player.team.map(s => `${s.species!}|${s.item || ''}|${s.moves!.join(',')}`).join(']');
       TEAMS[team] = Math.max(TEAMS[team] || 0, rating);
     }
   }
 
   const sorted = Object.entries(TEAMS).sort((a, b) => b[1] - a[1]);
-  if (sorted.length < num) {
-    console.error(`Requested ${num} teams but only ${sorted.length} unique teams`);
+  if (sorted.length < argv.num) {
+    console.error(`Requested ${argv.num as number} teams but only ${sorted.length} unique teams`);
     process.exit(1);
   }
 
-  for (let i = 0; i < num; i++) {
+  for (let i = 0; i < argv.num; i++) {
     const team: Partial<PokemonSet>[] = [];
     for (const s of sorted[i][0].split(']')) {
       const set: Partial<PokemonSet> = {};
@@ -93,4 +82,7 @@ if (process.argv.length === 3) {
     encode(gen, team, buf);
     process.stdout.write(buf);
   }
+  break;
+}
+default: usage(`Unknown command: ${cmd}`);
 }

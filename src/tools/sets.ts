@@ -12,7 +12,8 @@ export function canonicalize(gen: Generation, team: Partial<PokemonSet>[]) {
     set.name = set.species;
 
     set.item = gen.num >= 2 && set.item ? toID(set.item) : undefined;
-    set.ability = gen.num >= 3 && set.ability ? toID(set.ability) : undefined;
+    set.ability =
+      gen.num >= 3 ? toID(set.ability ? set.ability : species.abilities[0]) : undefined;
     set.gender = gen.num >= 2 && set.gender !== species.gender ? set.gender : undefined;
     set.level = set.level || 100;
 
