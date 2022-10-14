@@ -34,8 +34,13 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
     species[i] = {usage: 0, lead: 0, moves: {}, items: {}};
   }
 
-  const species_species =
-    new Array(sizes.Species).fill(new Array(sizes.Species).fill(0));
+  const species_species = new Array(sizes.Species);
+  for (let i = 0; i < sizes.Species; i++) {
+    species_species[i] = new Array(sizes.Species);
+    for (let j = 0; j < sizes.Species; j++) {
+      species_species[i][j] = 0;
+    }
+  }
   // const move_move =
   //   new Array(sizes.Moves).fill(new Array(sizes.Moves).fill(0));
   // const move_item =
@@ -54,8 +59,10 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
       for (const [index, set] of player.team.entries()) {
         const s = lookup.specieByID(set.species as ID);
         const pokemon = species[s];
+
         pokemon.usage += weight;
         total.usage += weight;
+
         if (index === 0) {
           pokemon.lead += weight;
           total.lead += weight;
@@ -63,7 +70,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
 
         for (let j = 0; j < index; j++) {
           const t = lookup.specieByID(player.team[j].species as ID);
-          species_species[s][t] = (species_species[s][t] || 0) + weight;
+          species_species[s][t] = species_species[t][s] = (species_species[s][t] || 0) + weight;
         }
 
         for (const move of set.moves!) {
@@ -220,7 +227,6 @@ if (require.main === module) {
 
     for (let i = 1; i < species.length; i++) {
       const pokemon = species[i];
-      const name = lookup.specieByNum(i);
       const use = round((pokemon.usage / total.usage) * 6);
       const lead = round(pokemon.lead / total.lead);
       const moves: {[id: string]: number} = {};
@@ -240,19 +246,16 @@ if (require.main === module) {
         }
       }
 
-      // console.debug({name, use, lead, moves});
+
     }
     for (let i = 1; i < sizes.Species; i++) {
       for (let j = 1; j < sizes.Species; j++) {
+        const weight = species[i].usage;
         const w = species_species[i][j];
-        const use = (species[i].usage / total.usage) * 6;
-        const foo = round((w - species[i].usage * use) / species[i].usage);
-        if (lookup.specieByNum(i) === 'tauros') {
-          console.debug(lookup.specieByNum(j), foo);
-        }
+        const use = (species[j].usage / total.usage) * 6;
+        const val = round((w - weight * use) / weight);
       }
     }
-
     break;
   }
   default: usage(`Unknown command: ${cmd}`);
