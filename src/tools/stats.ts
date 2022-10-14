@@ -11,44 +11,49 @@ import {Dex} from '@pkmn/sim';
 
 import {read} from './logs';
 
-interface Pokemon {
-  lead: number;
-  usage: number;
-  moves: {[num: number]: number};
-  items: {[num: number]: number};
-  // abilities: {[num: number]: number};
+interface Statistics {
+  total: {lead: number; usage: number};
+  species: number[];
+  species_lead: number[];
+  move_species: {[num: number]: number}[];
+  item_species: {[num: number]: number}[];
+  // ability_species: {[num: number]: number}[];
+  species_species: number[][];
+  // move_move: number[][];
+  // move_item: number[][];
+  // move_ability: number[][];
+  // item_ability: number[][];
 }
 
 function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
   const sizes = {
-    Species: Array.from(gen.species).length + 1,
-    Moves: Array.from(gen.moves).length + 1,
+    Species: Array.from(gen.species).length,
+    Moves: Array.from(gen.moves).length,
     Items: gen.num < 2 ? 0 : Array.from(gen.items).length + 1,
-    Abilities: gen.num < 3 ? 0 : Array.from(gen.abilities).length + 1,
+    Abilities: gen.num < 3 ? 0 : Array.from(gen.abilities).length,
   };
 
   const lookup = Lookup.get(gen);
-  const total = {lead: 0, usage: 0};
-  const species: Pokemon[] = new Array(sizes.Species);
-  for (let i = 0; i < species.length; i++) {
-    species[i] = {usage: 0, lead: 0, moves: {}, items: {}};
+
+  const stats: Statistics = {
+    total: {lead: 0, usage: 0},
+    species: new Array(sizes.Species),
+    species_lead: new Array(sizes.Species),
+    move_species: new Array(sizes.Species),
+    item_species: new Array(sizes.Species),
+    species_species: new Array(sizes.Species),
   }
 
-  const species_species = new Array(sizes.Species);
   for (let i = 0; i < sizes.Species; i++) {
-    species_species[i] = new Array(sizes.Species);
+    stats.species[i] = 0;
+    stats.species_lead[i] = 0;
+    stats.move_species[i] = {};
+    stats.item_species[i] = {};
+    stats.species_species[i] = new Array(sizes.Species);
     for (let j = 0; j < sizes.Species; j++) {
-      species_species[i][j] = 0;
+      stats.species_species[i][j] = 0;
     }
   }
-  // const move_move =
-  //   new Array(sizes.Moves).fill(new Array(sizes.Moves).fill(0));
-  // const move_item =
-  //   gen.num >= 3 ? new Array(sizes.Items).fill(new Array(sizes.Moves).fill(0)) : [];
-  // const move_ability =
-  //   gen.num >= 3 ? new Array(sizes.Abilities).fill(new Array(sizes.Moves).fill(0)) : [];
-  // const item_ability =
-  //   gen.num >= 3 ? new Array(sizes.Abilities).fill(new Array(sizes.Items).fill(0)) : [];
 
   for (const data of read(gen, options, usage)) {
     for (const player of [data.winner, data.loser] as const) {
@@ -57,36 +62,35 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
       if (!weight) continue;
 
       for (const [index, set] of player.team.entries()) {
-        const s = lookup.specieByID(set.species as ID);
-        const pokemon = species[s];
+        const s = lookup.specieByID(set.species as ID) - 1;
 
-        pokemon.usage += weight;
-        total.usage += weight;
+        stats.species[s] += weight;
+        stats.total.usage += weight;
 
         if (index === 0) {
-          pokemon.lead += weight;
-          total.lead += weight;
+          stats.species_lead[s] += weight;
+          stats.total.lead += weight;
         }
 
         for (let j = 0; j < index; j++) {
-          const t = lookup.specieByID(player.team[j].species as ID);
-          species_species[s][t] = species_species[t][s] = (species_species[s][t] || 0) + weight;
+          const t = lookup.specieByID(player.team[j].species as ID) - 1;
+          stats.species_species[s][t] = (stats.species_species[t][s] += weight);
         }
 
         for (const move of set.moves!) {
-          const m = lookup.moveByID(move as ID);
-          pokemon.moves[m] = (pokemon.moves[m] || 0) + weight;
+          const m = lookup.moveByID(move as ID) - 1;
+          stats.move_species[s][m] = (stats.move_species[s][m] || 0) + weight;
         }
 
         if (gen.num >= 2) {
           const i = set.item ? lookup.itemByID(set.item as ID) : 0;
-          pokemon.items[i] = (pokemon.items[i] || 0) + weight;
+          stats.item_species[s][i] = (stats.item_species[s][i] || 0) + weight;
         }
       }
     }
   }
 
-  return {sizes, lookup, total, species, species_species};
+  return {sizes, lookup, stats};
 }
 
 function weighting(rating: number, deviation: number, cutoff: number) {
@@ -183,22 +187,20 @@ if (require.main === module) {
       usage(argv.cutoff ? `Invalid cutoff ${argv.cutoff as number}` : 'No --cutoff provided');
     }
 
-    const {species} = compute(gen, argv as any as {logs?: string; cutoff: number});
+    const {stats} = compute(gen, argv as any as {logs?: string; cutoff: number});
 
     const sizes: {moves: number[]; items: number[]} = {moves: [], items: []};
-    for (let i = 1; i < species.length; i++) {
-      const pokemon = species[i];
-
+    for (let i = 1; i < stats.species.length; i++) {
       let move = 0;
-      for (const weight of Object.values(pokemon.moves)) {
-        if (round(weight / pokemon.usage) > 100) move++;
+      for (const weight of Object.values(stats.move_species[i])) {
+        if (round(weight / stats.species[i]) > 100) move++;
       }
       sizes.moves.push(move);
 
       if (gen.num >= 2) {
         let item = 0;
-        for (const weight of Object.values(pokemon.items)) {
-          if (round(weight / pokemon.usage) > 100) item++;
+        for (const weight of Object.values(stats.item_species[i])) {
+          if (round(weight / stats.species[i]) > 100) item++;
         }
         sizes.items.push(item);
       }
@@ -222,37 +224,36 @@ if (require.main === module) {
     if (!argv.moves) usage('No --moves provided');
     if (gen.num >= 2 && !argv.item) usage('No --items provided');
 
-    const {lookup, sizes, total, species, species_species} =
+    const {sizes, lookup, stats} =
       compute(gen, argv as any as {logs?: string; cutoff: number});
 
-    for (let i = 1; i < species.length; i++) {
-      const pokemon = species[i];
-      const use = round((pokemon.usage / total.usage) * 6);
-      const lead = round(pokemon.lead / total.lead);
+    const BY_VAL = (a: [string, number], b: [string, number]) => b[1] - a[1];
+
+    for (let i = 0; i < sizes.Species; i++) {
+      const use = round((stats.species[i] / stats.total.usage) * 6);
+      const lead = round(stats.species_lead[i] / stats.total.lead);
       const moves: {[id: string]: number} = {};
       const items: {[id: string]: number} = {};
 
       let move = 0;
-      for (const [key, weight] of Object.entries(pokemon.moves).sort((a, b) => b[1] - a[1])) {
-        moves[lookup.moveByNum(+key)] = round(weight / pokemon.usage);
+      for (const [key, weight] of Object.entries(stats.move_species[i]).sort(BY_VAL)) {
+        moves[lookup.moveByNum(+key + 1)] = round(weight / stats.species[i]);
         if (move++ > argv.move) break;
       }
 
       if (gen.num >= 2) {
         let item = 0;
-        for (const [key, weight] of Object.entries(pokemon.items).sort((a, b) => b[1] - a[1])) {
-          items[lookup.moveByNum(+key)] = round(weight / pokemon.usage);
+        for (const [key, weight] of Object.entries(stats.item_species[i]).sort(BY_VAL)) {
+          items[+key === 0 ? 'none' : lookup.itemByNum(+key)] = round(weight / stats.species[i]);
           if (item++ > argv.item) break;
         }
       }
-
-
     }
-    for (let i = 1; i < sizes.Species; i++) {
-      for (let j = 1; j < sizes.Species; j++) {
-        const weight = species[i].usage;
-        const w = species_species[i][j];
-        const use = (species[j].usage / total.usage) * 6;
+    for (let i = 0; i < sizes.Species; i++) {
+      for (let j = 0; j < sizes.Species; j++) {
+        const weight = stats.species[i];
+        const w = stats.species_species[i][j];
+        const use = (stats.species[j] / stats.total.usage) * 6;
         const val = round((w - weight * use) / weight);
       }
     }
