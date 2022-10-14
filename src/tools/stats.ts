@@ -25,15 +25,20 @@ interface Statistics {
   // item_ability: number[][];
 }
 
-function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
-  const sizes = {
-    Species: Array.from(gen.species).length,
-    Moves: Array.from(gen.moves).length,
-    Items: gen.num < 2 ? 0 : Array.from(gen.items).length + 1,
-    Abilities: gen.num < 3 ? 0 : Array.from(gen.abilities).length,
+function setup(gen: Generation) {
+  return {
+    lookup: Lookup.get(gen),
+    sizes: {
+      Species: Array.from(gen.species).length,
+      Moves: Array.from(gen.moves).length,
+      Items: gen.num < 2 ? 0 : Array.from(gen.items).length + 1,
+      Abilities: gen.num < 3 ? 0 : Array.from(gen.abilities).length,
+    },
   };
+}
 
-  const lookup = Lookup.get(gen);
+function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
+  const {sizes, lookup} = setup(gen);
 
   const stats: Statistics = {
     total: {lead: 0, usage: 0},
@@ -42,7 +47,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
     move_species: new Array(sizes.Species),
     item_species: new Array(sizes.Species),
     species_species: new Array(sizes.Species),
-  }
+  };
 
   for (let i = 0; i < sizes.Species; i++) {
     stats.species[i] = 0;
@@ -55,7 +60,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
     }
   }
 
-  for (const data of read(gen, options, usage)) {
+  for (const data of read(gen, options, exit)) {
     for (const player of [data.winner, data.loser] as const) {
       if (!player.rating) continue;
       const weight = weighting(player.rating.rpr, player.rating.rprd, options.cutoff);
@@ -78,7 +83,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
         }
 
         for (const move of set.moves!) {
-          const m = lookup.moveByID(move as ID) - 1;
+          const m = lookup.moveByID(move as ID);
           stats.move_species[s][m] = (stats.move_species[s][m] || 0) + weight;
         }
 
@@ -133,47 +138,109 @@ function ptile(arr: number[], p: number): number {
   return arr[lower] * (1 - weight) + arr[upper] * weight;
 }
 
-function usage(msg?: string) {
+function exit(msg?: string) {
   if (msg) console.error(msg);
   console.error('Usage: stats <compute|display|sizes|cutoff> ...');
   process.exit(1);
 }
 
 if (require.main === module) {
-  if (process.argv.length < 3) usage();
+  if (process.argv.length < 3) exit();
   const cmd = process.argv[2];
   const argv = minimist(process.argv.slice(3));
 
   if (!argv.gen || argv.gen < 1 || argv.gen > 8) {
-    usage(argv.gen ? `Invalid gen ${argv.gen as number}` : 'No --gen provided');
+    exit(argv.gen ? `Invalid gen ${argv.gen as number}` : 'No --gen provided');
   }
   const gens = new Generations(Dex as any);
   const gen = gens.get(argv.gen as GenerationNum);
-  if (gen.num >= 3) usage(`Unsupported gen ${gen.num}`); // TODO
+  if (gen.num >= 3) exit(`Unsupported gen ${gen.num}`); // TODO
+
+  argv.moves = argv.moves || (gen.num === 1 ? 15 : 20);
+  argv.items = argv.items || 5;
 
   switch (cmd) {
   case 'display': {
-    // display --gen=1
+    // display --gen=1 --report=<pokemon|teammates>
+    const {sizes, lookup} = setup(gen);
+
     const db = fs.readFileSync(
       path.resolve(__dirname, '..', '..', 'src', 'lib', `gen${gen.num}`, 'data', 'stats.db')
     );
-      // if (db.length !== 0) {
-      //   usage(`Corrupted stats.db of size ${db.length} (${N})`);
-      // }
 
-    // for (let i = 0; i < db.length; i += N) {
-    //   console.log(display(gen, decode(gen, db, i)));
-    // }
+    const N = (sizes.Species * 2) + (sizes.Species * 2) +
+      (sizes.Species * argv.moves * 3) +
+      (gen.num >= 2 ? sizes.Species * argv.items * 3 : 0);
+      // (sizes.Species * sizes.Species * 2);
+    if (db.length !== N) {
+      exit(`Corrupted stats.db of size ${db.length} (${N})`);
+    }
+
+    switch (argv.report) {
+    case 'pokemon': {
+      const pokemon: Array<{
+        id: ID;
+        usage: number;
+        lead: number;
+        moves: {[id: string]: number};
+        items?: {[id: string]: number};
+      }> = [];
+
+      for (let i = 0; i < sizes.Species; i++) {
+        let offset = 0;
+        const id = lookup.specieByNum(i + 1);
+        const usage = db.readUInt16LE(offset + (i * 2)) / 100;
+        offset += sizes.Species * 2;
+
+        const lead = db.readUInt16LE(offset + (i * 2)) / 100;
+        offset += sizes.Species * 2;
+
+        const moves: {[id: string]: number} = {};
+        for (let j = 0; j < argv.moves; j++) {
+          const off = offset + (i * argv.moves * 3) + (j * 3);
+          const move = db.readUint8(off);
+          if (move === 0) break;
+          moves[lookup.moveByNum(move)] = db.readUint16LE(off + 1) / 100;
+        }
+        offset += sizes.Species * argv.moves * 3;
+
+        let items: {[id: string]: number} | undefined = undefined;
+        if (gen.num >= 2) {
+          items = {};
+          for (let j = 0; j < argv.moves; j++) {
+            const off = offset + (i * argv.moves * 3) + (j * 3);
+            const item = db.readUint8(off);
+            const val = db.readUint16LE(off + 1);
+            if (item === 0 && val === 0) break;
+            moves[lookup.itemByNum(item)] = val / 100;
+          }
+          offset += sizes.Species * argv.items * 3;
+        }
+
+        pokemon.push({id, usage, lead, moves, items});
+      }
+
+      for (const p of pokemon.sort((a, b) => b.usage - a.usage)) {
+        console.log(JSON.stringify(p, null, 2));
+      }
+
+      break;
+    }
+    case 'teammates': {
+      break;
+    }
+    default: exit(`Unknown report type ${argv.report as string || ''}`);
+    }
     break;
   }
   case 'cutoff': {
     // cutoff --gen=1 -logs=logs.db --percentile=0.5
     if (!argv.percentile || argv.percentile < 0 || argv.percentile > 100) {
-      usage(argv.percentile
+      exit(argv.percentile
         ? `Invalid percentile ${argv.percentile as number}` : 'No --percentile provided');
     }
     const ratings = [];
-    for (const data of read(gen, argv as {logs?: string}, usage)) {
+    for (const data of read(gen, argv as {logs?: string}, exit)) {
       for (const player of [data.winner, data.loser]) {
         if (player.rating) ratings.push(player.rating.rpr);
       }
@@ -184,13 +251,13 @@ if (require.main === module) {
   case 'sizes': {
     // sizes --gen=1 --logs=logs.db --cutoff=1500
     if (!argv.cutoff || argv.cutoff < 1000) {
-      usage(argv.cutoff ? `Invalid cutoff ${argv.cutoff as number}` : 'No --cutoff provided');
+      exit(argv.cutoff ? `Invalid cutoff ${argv.cutoff as number}` : 'No --cutoff provided');
     }
 
     const {stats} = compute(gen, argv as any as {logs?: string; cutoff: number});
 
     const sizes: {moves: number[]; items: number[]} = {moves: [], items: []};
-    for (let i = 1; i < stats.species.length; i++) {
+    for (let i = 0; i < stats.species.length; i++) {
       let move = 0;
       for (const weight of Object.values(stats.move_species[i])) {
         if (round(weight / stats.species[i]) > 100) move++;
@@ -218,48 +285,66 @@ if (require.main === module) {
   case 'compute': {
     // compute --gen=1 --logs=logs.db --cutoff=1500 --moves=10 --items=5
     if (!argv.cutoff || argv.cutoff < 1000) {
-      usage(argv.cutoff ? `Invalid cutoff ${argv.cutoff as number}` : 'No --cutoff provided');
+      exit(argv.cutoff ? `Invalid cutoff ${argv.cutoff as number}` : 'No --cutoff provided');
     }
 
-    if (!argv.moves) usage('No --moves provided');
-    if (gen.num >= 2 && !argv.item) usage('No --items provided');
-
-    const {sizes, lookup, stats} =
+    const {sizes, stats} =
       compute(gen, argv as any as {logs?: string; cutoff: number});
 
     const BY_VAL = (a: [string, number], b: [string, number]) => b[1] - a[1];
 
-    for (let i = 0; i < sizes.Species; i++) {
-      const use = round((stats.species[i] / stats.total.usage) * 6);
-      const lead = round(stats.species_lead[i] / stats.total.lead);
-      const moves: {[id: string]: number} = {};
-      const items: {[id: string]: number} = {};
+    let buf = Buffer.alloc(sizes.Species * 2);
+    for (let i = 0; i < stats.species.length; i++) {
+      buf.writeUInt16LE(round((stats.species[i] / stats.total.usage) * 6), i * 2);
+    }
+    process.stdout.write(buf);
 
-      let move = 0;
-      for (const [key, weight] of Object.entries(stats.move_species[i]).sort(BY_VAL)) {
-        moves[lookup.moveByNum(+key + 1)] = round(weight / stats.species[i]);
-        if (move++ > argv.move) break;
+    buf = Buffer.alloc(sizes.Species * 2);
+    for (let i = 0; i < stats.species_lead.length; i++) {
+      buf.writeUInt16LE(round(stats.species_lead[i] / stats.total.lead), i * 2);
+    }
+    process.stdout.write(buf);
+
+    buf = Buffer.alloc(sizes.Species * argv.moves * 3);
+    for (let i = 0; i < stats.move_species.length; i++) {
+      const moves = Object.entries(stats.move_species[i]).sort(BY_VAL);
+      for (let j = 0; j < Math.min(moves.length, argv.moves); j++) {
+        const [key, weight] = moves[j];
+        const offset = (i * argv.moves * 3) + (j * 3);
+        buf.writeUint8(+key, offset);
+        buf.writeUint16LE(round(weight / stats.species[i]), offset + 1);
       }
+    }
+    process.stdout.write(buf);
 
-      if (gen.num >= 2) {
-        let item = 0;
-        for (const [key, weight] of Object.entries(stats.item_species[i]).sort(BY_VAL)) {
-          items[+key === 0 ? 'none' : lookup.itemByNum(+key)] = round(weight / stats.species[i]);
-          if (item++ > argv.item) break;
+    if (gen.num >= 2) {
+      buf = Buffer.alloc(sizes.Species * argv.items * 3);
+      for (let i = 0; i < stats.item_species.length; i++) {
+        const items = Object.entries(stats.item_species[i]).sort(BY_VAL);
+        for (let j = 0; j < Math.min(items.length, argv.items); j++) {
+          const [key, weight] = items[j];
+          const offset = (i * argv.items * 3) + (j * 3);
+          buf.writeUint8(+key, offset);
+          buf.writeUint16LE(round(weight / stats.species[i]), offset + 1);
         }
       }
+      process.stdout.write(buf);
     }
-    for (let i = 0; i < sizes.Species; i++) {
-      for (let j = 0; j < sizes.Species; j++) {
-        const weight = stats.species[i];
-        const w = stats.species_species[i][j];
-        const use = (stats.species[j] / stats.total.usage) * 6;
-        const val = round((w - weight * use) / weight);
-      }
-    }
+
+    // buf = Buffer.alloc(sizes.Species * sizes.Species * 2);
+    // for (let i = 0; i < sizes.Species; i++) {
+    //   for (let j = 0; j < sizes.Species; j++) {
+    //     const offset = (i * sizes.Species) + (j * 2);
+    //     const weight = stats.species[i];
+    //     const w = stats.species_species[i][j];
+    //     const usage = (stats.species[j] / stats.total.usage) * 6;
+    //     buf.writeUint16LE(round((w - weight * usage) / weight), offset);
+    //   }
+    // }
+    // process.stdout.write(buf);
     break;
   }
-  default: usage(`Unknown command: ${cmd}`);
+  default: exit(`Unknown command: ${cmd}`);
   }
 }
 
