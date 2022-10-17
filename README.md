@@ -2,6 +2,12 @@
   <img alt="0-ERROR" width="488" height="488" src="https://pkmn.cc/0-ERROR.png" style="image-rendering: pixelated" />
   <br />
   <br />
+  <a href="https://github.com/pkmn/0-ERROR/actions/workflows/test.yml">
+    <img alt="Test Status" src="https://github.com/pkmn/0-ERROR/workflows/Tests/badge.svg" />
+  </a>
+  <a href="#status">
+    <img alt="WIP" src="https://img.shields.io/badge/status-WIP-red.svg" />
+  </a>
   <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode">
     <img alt="License" src="https://img.shields.io/badge/License-CC%20BY--NC--ND-red.svg" />
   </a>
