@@ -72,7 +72,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
         stats.species[s] += weight;
         stats.total.usage += weight;
 
-        if (index === 0) {
+        if (gen.num >= 5 && index === 0) {
           stats.species_lead[s] += weight;
           stats.total.lead += weight;
         }
@@ -181,7 +181,7 @@ if (require.main === module) {
       const pokemon: Array<{
         id: ID;
         usage: number;
-        lead: number;
+        lead?: number;
         moves: {[id: string]: number};
         items?: {[id: string]: number};
       }> = [];
@@ -192,8 +192,11 @@ if (require.main === module) {
         const usage = db.readUInt16LE(offset + (i * 2)) / 100;
         offset += sizes.Species * 2;
 
-        const lead = db.readUInt16LE(offset + (i * 2)) / 100;
-        offset += sizes.Species * 2;
+        let lead: number | undefined = undefined;
+        if (gen.num >= 5) {
+          db.readUInt16LE(offset + (i * 2)) / 100;
+          offset += sizes.Species * 2;
+        }
 
         const moves: {[id: string]: number} = {};
         for (let j = 0; j < argv.moves; j++) {
@@ -299,11 +302,13 @@ if (require.main === module) {
     }
     process.stdout.write(buf);
 
-    buf = Buffer.alloc(sizes.Species * 2);
-    for (let i = 0; i < stats.species_lead.length; i++) {
-      buf.writeUInt16LE(round(stats.species_lead[i] / stats.total.lead), i * 2);
+    if (gen.num >= 5) {
+      buf = Buffer.alloc(sizes.Species * 2);
+      for (let i = 0; i < stats.species_lead.length; i++) {
+        buf.writeUInt16LE(round(stats.species_lead[i] / stats.total.lead), i * 2);
+      }
+      process.stdout.write(buf);
     }
-    process.stdout.write(buf);
 
     buf = Buffer.alloc(sizes.Species * argv.moves * 3);
     for (let i = 0; i < stats.move_species.length; i++) {
