@@ -1,6 +1,8 @@
 import {Generation, PokemonSet, toID, ID} from '@pkmn/data';
 import {Lookup} from '@pkmn/engine';
 
+import {Read, Write} from './data';
+
 export function canonicalize(gen: Generation, team: Partial<PokemonSet>[]) {
   if (gen.num >= 3) throw new Error(`Unsupported gen ${gen.num}`); // TODO
 
@@ -58,19 +60,19 @@ export function encode(gen: Generation, team: Partial<PokemonSet>[], buf: Buffer
   switch (gen.num) {
   case 1: {
     for (const set of canonical) {
-      buf.writeUInt8(lookup.specieByID(set.species as ID), offset++);
+      Write.u8(buf, lookup.specieByID(set.species as ID), offset++);
       for (let i = 0; i < 4; i++) {
-        buf.writeUint8(i < set.moves!.length ? lookup.moveByID(set.moves![i] as ID) : 0, offset++);
+        Write.u8(buf, i < set.moves!.length ? lookup.moveByID(set.moves![i] as ID) : 0, offset++);
       }
     }
     return offset;
   }
   case 2: {
     for (const set of canonical) {
-      buf.writeUInt8(lookup.specieByID(set.species as ID), offset++);
-      buf.writeUInt8(set.item ? lookup.itemByID(set.item as ID) : 0, offset++);
+      Write.u8(buf, lookup.specieByID(set.species as ID), offset++);
+      Write.u8(buf, set.item ? lookup.itemByID(set.item as ID) : 0, offset++);
       for (let i = 0; i < 4; i++) {
-        buf.writeUint8(i < set.moves!.length ? lookup.moveByID(set.moves![i] as ID) : 0, offset++);
+        Write.u8(buf, i < set.moves!.length ? lookup.moveByID(set.moves![i] as ID) : 0, offset++);
       }
     }
     return offset;
@@ -87,13 +89,13 @@ export function decode(gen: Generation, buf: Buffer, offset = 0) {
   switch (gen.num) {
   case 1: {
     for (let i = offset; i < offset + 6 * 5; i += 5) {
-      byte = buf.readUint8(i);
+      byte = Read.u8(buf, i);
       if (!byte) return team;
       const set: Partial<PokemonSet> = {};
       set.species = lookup.specieByNum(byte);
       set.moves = [];
       for (let j = 0; j < 4; j++) {
-        byte = buf.readUint8(i + 1 + j);
+        byte = Read.u8(buf, i + 1 + j);
         if (!byte) break;
         set.moves.push(lookup.moveByNum(byte));
       }
@@ -103,15 +105,15 @@ export function decode(gen: Generation, buf: Buffer, offset = 0) {
   }
   case 2: {
     for (let i = offset; i < offset + 6 * 6; i += 6) {
-      byte = buf.readUint8(i);
+      byte = Read.u8(buf, i);
       if (!byte) return team;
       const set: Partial<PokemonSet> = {};
       set.species = lookup.specieByNum(byte);
-      byte = buf.readUint8(i + 1);
+      byte = Read.u8(buf, i + 1);
       set.item = byte ? lookup.itemByNum(byte) : undefined;
       set.moves = [];
       for (let j = 0; j < 4; j++) {
-        byte = buf.readUint8(i + 2 + j);
+        byte = Read.u8(buf, i + 2 + j);
         if (!byte) break;
         set.moves.push(lookup.moveByNum(byte));
       }

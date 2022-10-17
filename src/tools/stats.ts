@@ -9,6 +9,7 @@ import {Generations, Generation, GenerationNum, ID} from '@pkmn/data';
 import {Lookup} from '@pkmn/engine';
 import {Dex} from '@pkmn/sim';
 
+import {Read, Write} from './data';
 import {read} from './logs';
 
 interface Statistics {
@@ -72,6 +73,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
         stats.species[s] += weight;
         stats.total.usage += weight;
 
+        // FIXME: want to track only NON lead statistics for other pokemon! = then divide by 5 and not 6
         if (gen.num >= 5 && index === 0) {
           stats.species_lead[s] += weight;
           stats.total.lead += weight;
@@ -298,14 +300,14 @@ if (require.main === module) {
 
     let buf = Buffer.alloc(sizes.Species * 2);
     for (let i = 0; i < stats.species.length; i++) {
-      buf.writeUInt16LE(round((stats.species[i] / stats.total.usage) * 6), i * 2);
+      Write.u16(buf, round((stats.species[i] / stats.total.usage) * 6), i * 2);
     }
     process.stdout.write(buf);
 
     if (gen.num >= 5) {
       buf = Buffer.alloc(sizes.Species * 2);
       for (let i = 0; i < stats.species_lead.length; i++) {
-        buf.writeUInt16LE(round(stats.species_lead[i] / stats.total.lead), i * 2);
+        Write.u16(buf, round(stats.species_lead[i] / stats.total.lead), i * 2);
       }
       process.stdout.write(buf);
     }
@@ -316,8 +318,8 @@ if (require.main === module) {
       for (let j = 0; j < Math.min(moves.length, argv.moves); j++) {
         const [key, weight] = moves[j];
         const offset = (i * argv.moves * 3) + (j * 3);
-        buf.writeUint8(+key, offset);
-        buf.writeUint16LE(round(weight / stats.species[i]), offset + 1);
+        Write.u8(buf, +key, offset);
+        Write.u16(buf, round(weight / stats.species[i]), offset + 1);
       }
     }
     process.stdout.write(buf);
@@ -329,8 +331,8 @@ if (require.main === module) {
         for (let j = 0; j < Math.min(items.length, argv.items); j++) {
           const [key, weight] = items[j];
           const offset = (i * argv.items * 3) + (j * 3);
-          buf.writeUint8(+key, offset);
-          buf.writeUint16LE(round(weight / stats.species[i]), offset + 1);
+          Write.u8(buf, +key, offset);
+          Write.u16(buf, round(weight / stats.species[i]), offset + 1);
         }
       }
       process.stdout.write(buf);
@@ -343,7 +345,7 @@ if (require.main === module) {
     //     const weight = stats.species[i];
     //     const w = stats.species_species[i][j];
     //     const usage = (stats.species[j] / stats.total.usage) * 6;
-    //     buf.writeUint16LE(round((w - weight * usage) / weight), offset);
+    //     Write.u16(buf, round((w - weight * usage) / weight), offset);
     //   }
     // }
     // process.stdout.write(buf);

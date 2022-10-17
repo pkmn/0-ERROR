@@ -11,6 +11,7 @@ import minimist from 'minimist';
 import {Generations, Generation, GenerationNum, PokemonSet} from '@pkmn/data';
 import {Dex} from '@pkmn/sim';
 
+import {Read, Write} from './data';
 import {encode, decode} from './sets';
 
 interface Log {
@@ -76,8 +77,8 @@ function serialize(gen: Generation, log: Log) {
   const N = 6 * Sizes[gen.num as keyof typeof Sizes];
   const buf = Buffer.alloc(17 + 2 * N);
 
-  buf.writeBigUint64LE(BigInt(new Date(log.timestamp).getTime()), 0);
-  buf.writeUint16LE(log.turns, 8);
+  Write.u64(buf, new Date(log.timestamp).getTime(), 0);
+  Write.u16(buf, log.turns, 8);
 
   const winner: 'p1' | 'p2' = log.winner === log.p2 ? 'p2' : 'p1';
   const loser: 'p1' | 'p2' = winner === 'p1' ? 'p2' : 'p1';
@@ -90,15 +91,15 @@ function serialize(gen: Generation, log: Log) {
   } else if (log.endType === 'forfeit') {
     endType = EndType.Forfeit;
   }
-  buf.writeUInt8(endType, 10);
+  Write.u8(buf, endType, 10);
 
   if (log[`${winner}rating`]) {
-    buf.writeUint16LE(Math.round(log[`${winner}rating`]!.rpr), 11);
-    buf.writeUInt8(Math.round(log[`${winner}rating`]!.rprd), 13);
+    Write.u16(buf, Math.round(log[`${winner}rating`]!.rpr), 11);
+    Write.u8(buf, Math.round(log[`${winner}rating`]!.rprd), 13);
   }
   if (log[`${loser}rating`]) {
-    buf.writeUint16LE(Math.round(log[`${loser}rating`]!.rpr), 14);
-    buf.writeUInt8(Math.round(log[`${loser}rating`]!.rprd), 16);
+    Write.u16(buf, Math.round(log[`${loser}rating`]!.rpr), 14);
+    Write.u8(buf, Math.round(log[`${loser}rating`]!.rprd), 16);
   }
 
   encode(gen, log[`${winner}team`], buf, 17);
@@ -126,13 +127,13 @@ export function deserialize(gen: Generation, buf: Buffer, offset = 0) {
     },
   };
 
-  data.timestamp = buf.readBigUInt64LE(offset);
-  data.turns = buf.readUint16LE(offset + 8);
-  data.endType = buf.readUint8(offset + 10);
-  let byte = buf.readUint16LE(offset + 11);
-  if (byte) data.winner.rating = {rpr: byte, rprd: buf.readUInt8(offset + 13)};
-  byte = buf.readUint16LE(offset + 14);
-  if (byte) data.loser.rating = {rpr: byte, rprd: buf.readUInt8(offset + 16)};
+  data.timestamp = Read.u64(buf, offset);
+  data.turns = Read.u16(buf, offset + 8);
+  data.endType = Read.u8(buf, offset + 10);
+  let byte = Read.u16(buf, offset + 11);
+  if (byte) data.winner.rating = {rpr: byte, rprd: Read.u8(buf, offset + 13)};
+  byte = Read.u16(buf, offset + 14);
+  if (byte) data.loser.rating = {rpr: byte, rprd: Read.u8(buf, offset + 16)};
 
   data.winner.team = decode(gen, buf, offset + 17);
   data.loser.team = decode(gen, buf, offset + 17 + N);

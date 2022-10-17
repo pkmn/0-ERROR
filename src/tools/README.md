@@ -13,7 +13,7 @@ This folder contains miscellaneous scripts and tools useful for working on 0 ERR
           └── YYYY-MM-DD.7z
               └── battle-format-N.log.json
 
-  The script then writes a row for each log to standard out in the little-endian binary format
+  The script then writes a row for each log to standard out in the native-endian binary format
   detailed below:
 
   | Start | End    | Data                                                    |
