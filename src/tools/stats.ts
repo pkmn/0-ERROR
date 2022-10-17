@@ -73,8 +73,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
         stats.species[s] += weight;
         stats.total.usage += weight;
 
-        // FIXME: want to track only NON lead statistics for other pokemon! = then divide by 5 and not 6
-        if (gen.num >= 5 && index === 0) {
+        if (index === 0) {
           stats.species_lead[s] += weight;
           stats.total.lead += weight;
         }
@@ -84,6 +83,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
           stats.species_species[s][t] = (stats.species_species[t][s] += weight);
         }
 
+        // FIXME: Hidden Power handling!
         for (const move of set.moves!) {
           const m = lookup.moveByID(move as ID);
           stats.move_species[s][m] = (stats.move_species[s][m] || 0) + weight;
@@ -183,7 +183,7 @@ if (require.main === module) {
       const pokemon: Array<{
         id: ID;
         usage: number;
-        lead?: number;
+        lead: number;
         moves: {[id: string]: number};
         items?: {[id: string]: number};
       }> = [];
@@ -191,14 +191,14 @@ if (require.main === module) {
       for (let i = 0; i < sizes.Species; i++) {
         let offset = 0;
         const id = lookup.specieByNum(i + 1);
-        const usage = db.readUInt16LE(offset + (i * 2)) / 100;
+
+        const lead = db.readUInt16LE(offset + (i * 2)) / 100;
         offset += sizes.Species * 2;
 
-        let lead: number | undefined = undefined;
-        if (gen.num >= 5) {
-          db.readUInt16LE(offset + (i * 2)) / 100;
-          offset += sizes.Species * 2;
-        }
+        const nonlead = db.readUInt16LE(offset + (i * 2)) / 100;
+        offset += sizes.Species * 2;
+
+        const usage = nonlead; // TODO: compute based on nonlead and lead!
 
         const moves: {[id: string]: number} = {};
         for (let j = 0; j < argv.moves; j++) {
@@ -299,18 +299,17 @@ if (require.main === module) {
     const BY_VAL = (a: [string, number], b: [string, number]) => b[1] - a[1];
 
     let buf = Buffer.alloc(sizes.Species * 2);
+    for (let i = 0; i < stats.species_lead.length; i++) {
+      Write.u16(buf, round(stats.species_lead[i] / stats.total.lead), i * 2);
+    }
+    process.stdout.write(buf);
+
+    // FIXME: want to track only NON lead statistics for other pokemon! - need to compute on from other
+    buf = Buffer.alloc(sizes.Species * 2);
     for (let i = 0; i < stats.species.length; i++) {
       Write.u16(buf, round((stats.species[i] / stats.total.usage) * 6), i * 2);
     }
     process.stdout.write(buf);
-
-    if (gen.num >= 5) {
-      buf = Buffer.alloc(sizes.Species * 2);
-      for (let i = 0; i < stats.species_lead.length; i++) {
-        Write.u16(buf, round(stats.species_lead[i] / stats.total.lead), i * 2);
-      }
-      process.stdout.write(buf);
-    }
 
     buf = Buffer.alloc(sizes.Species * argv.moves * 3);
     for (let i = 0; i < stats.move_species.length; i++) {
