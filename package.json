@@ -29,7 +29,7 @@
     "compile": "tsc -p .",
     "build": "npm run compile",
     "test": "jest",
-    "postinstall": "npm -C lib/pkmn install && npm -C lib/pkmn run compile"
+    "postinstall": "npm -C lib/pkmn install --ignore-scripts && npm -C lib/pkmn run compile"
   },
   "jest": {
     "collectCoverageFrom": [ "src/pkg/*.ts"],
