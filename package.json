@@ -28,7 +28,8 @@
     "fix": "eslint --fix src --ext ts,js",
     "compile": "tsc -p .",
     "build": "npm run compile",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "npm -C lib/pkmn install && npm -C lib/pkmn run compile"
   },
   "jest": {
     "collectCoverageFrom": [ "src/pkg/*.ts"],
@@ -37,7 +38,7 @@
     "preset": "ts-jest",
     "verbose": false,
     "testEnvironment": "node",
-    "testPathIgnorePatterns": ["node_modules/", "build/"],
+    "testPathIgnorePatterns": ["node_modules/", "build/", "lib/"],
     "moduleNameMapper": {
       "^@pkmn/sim/(.*)$": "<rootDir>/node_modules/@pkmn/sim/build/sim/$1"
     }

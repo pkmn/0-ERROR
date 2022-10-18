@@ -5,7 +5,7 @@ export const LE = (() => {
 })();
 
 export class Read {
-  private constructor() {};
+  private constructor() {}
 
   static u8(buf: Buffer, offset: number) {
     return buf.readUInt8(offset);
@@ -25,7 +25,7 @@ export class Read {
 }
 
 export class Write {
-  private constructor() {};
+  private constructor() {}
 
   static u8(buf: Buffer, value: number, offset: number) {
     return buf.writeUInt8(offset);

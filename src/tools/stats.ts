@@ -9,7 +9,7 @@ import {Generations, Generation, GenerationNum, ID} from '@pkmn/data';
 import {Lookup} from '@pkmn/engine';
 import {Dex} from '@pkmn/sim';
 
-import {Read, Write} from './data';
+import {Write} from './data';
 import {read} from './logs';
 
 interface Statistics {
@@ -304,7 +304,7 @@ if (require.main === module) {
     }
     process.stdout.write(buf);
 
-    // FIXME: want to track only NON lead statistics for other pokemon! - need to compute on from other
+    // FIXME: want to track only NON lead statistics for other pokemon!
     buf = Buffer.alloc(sizes.Species * 2);
     for (let i = 0; i < stats.species.length; i++) {
       Write.u16(buf, round((stats.species[i] / stats.total.usage) * 6), i * 2);
