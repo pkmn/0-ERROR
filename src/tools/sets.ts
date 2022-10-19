@@ -1,11 +1,29 @@
-import {Generation, PokemonSet, toID, ID} from '@pkmn/data';
+import {Generation, PokemonSet, toID, ID, HPTypeName, StatsTable} from '@pkmn/data';
 import {Lookup} from '@pkmn/engine';
 
 import {Read, Write} from './data';
 
-export function canonicalize(gen: Generation, team: Partial<PokemonSet>[]) {
-  if (gen.num >= 3) throw new Error(`Unsupported gen ${gen.num}`); // TODO
+const HP: {[type in HPTypeName]: {ivs: Partial<StatsTable>; dvs: Partial<StatsTable>}} = {
+  Bug: {ivs: {atk: 30, def: 30, spd: 30}, dvs: {atk: 13, def: 13}},
+  Dark: {ivs: {}, dvs: {}},
+  Dragon: {ivs: {atk: 30}, dvs: {def: 14}},
+  Electric: {ivs: {spa: 30}, dvs: {atk: 14}},
+  Fighting: {ivs: {def: 30, spa: 30, spd: 30, spe: 30}, dvs: {atk: 12, def: 12}},
+  Fire: {ivs: {atk: 30, spa: 30, spe: 30}, dvs: {atk: 14, def: 12}},
+  Flying: {ivs: {hp: 30, atk: 30, def: 30, spa: 30, spd: 30}, dvs: {atk: 12, def: 13}},
+  Ghost: {ivs: {def: 30, spd: 30}, dvs: {atk: 13, def: 14}},
+  Grass: {ivs: {atk: 30, spa: 30}, dvs: {atk: 14, def: 14}},
+  Ground: {ivs: {spa: 30, spd: 30}, dvs: {atk: 12}},
+  Ice: {ivs: {atk: 30, def: 30}, dvs: {def: 13}},
+  Poison: {ivs: {def: 30, spa: 30, spd: 30}, dvs: {atk: 12, def: 14}},
+  Psychic: {ivs: {atk: 30, spe: 30}, dvs: {def: 12}},
+  Rock: {ivs: {def: 30, spd: 30, spe: 30}, dvs: {atk: 13, def: 12}},
+  Steel: {ivs: {spd: 30}, dvs: {atk: 13}},
+  Water: {ivs: {atk: 30, def: 30, spa: 30}, dvs: {atk: 14, def: 13}},
+};
 
+// NOTE: to properly dedupe you still must compare computed stats
+export function canonicalize(gen: Generation, team: Partial<PokemonSet>[]) {
   let lead: Partial<PokemonSet> | undefined = undefined;
   const rest: Array<[ID, Partial<PokemonSet>]> = [];
   for (const set of team) {
@@ -19,16 +37,88 @@ export function canonicalize(gen: Generation, team: Partial<PokemonSet>[]) {
     set.gender = gen.num >= 2 && set.gender !== species.gender ? set.gender : undefined;
     set.level = set.level || 100;
 
-    // TODO: IVs/EVs/Nature/hpType
+    let maxed = true;
+    if (!set.ivs) {
+      set.ivs = gen.stats.fill({}, 31);
+    } else {
+      for (const stat of gen.stats) {
+        set.ivs[stat] = set.ivs[stat] ?? 31;
+        if (gen.num < 3) set.ivs[stat] = gen.stats.toIV(gen.stats.toDV(set.ivs[stat]));
+        if (set.ivs[stat] !== 31) maxed = false;
+      }
+    }
 
+    const nature = gen.num < 3 ? gen.natures.get(set.nature || 'serious') : undefined;
+    set.nature = nature?.id;
+
+    let hpType = set.hpType as HPTypeName | undefined;
     let happiness = '';
+    let swordsdance = false;
     const moves = [];
     for (const move of set.moves!) {
-      const id = toID(move);
+      let id = toID(move);
+      if (id === 'return' || id === 'frustration') {
+        happiness = id;
+      } else if (id === 'swordsdance') {
+        swordsdance = true;
+      } else if (id.startsWith('hiddenpower')) {
+        if (id === 'hiddenpower') {
+          const type = set.hpType || gen.types.getHiddenPower(set.ivs)!.type;
+          id = `${id}${type}` as ID;
+        } else {
+          hpType = (id.substr(11, 1).toUpperCase() + id.substr(12)) as HPTypeName;
+        }
+      }
       moves.push(id);
-      if (id === 'return' || id === 'frustration') happiness = id;
     }
     set.moves = moves.sort((a, b) => a.localeCompare(b));
+
+    const base = gen.species.get(set.species)!.baseStats;
+    set.evs = set.evs || {} as any as StatsTable;
+    for (const stat of gen.stats) {
+      if (gen.num < 3) {
+        set.evs[stat] = set.evs[stat] ?? 252;
+      } else {
+        if (!set.evs[stat]) {
+          set.evs[stat] = 0;
+        } else {
+          const val =
+            gen.stats.calc(stat, base[stat], set.ivs[stat], set.evs[stat], set.level, nature);
+          if (stat === 'hp') {
+            set.evs[stat] = base[stat] === 1 ? 0
+              : Math.max(0, (Math.ceil(((val - set.level - 10) * 100) / set.level) -
+                2 * base[stat] - set.ivs[stat]) * 4);
+          } else {
+            const n = !nature ? 1 : nature.plus === stat ? 1.1 : nature.minus === stat ? 0.9 : 1;
+            set.evs[stat] = Math.max(0, (Math.ceil(((Math.ceil(val / n) - 5) * 100) / set.level) -
+              2 * base[stat] - set.ivs[stat]) * 4);
+          }
+        }
+      }
+    }
+
+    if (gen.num === 2 && set.species === 'marowak' && set.item === 'thickclub' &&
+      swordsdance && set.level === 100) {
+      const iv = Math.floor(set.ivs.atk / 2) * 2;
+      while (set.evs.atk > 0 && 2 * 80 + iv + Math.floor(set.evs.atk / 4) + 5 > 255) {
+        set.evs.atk -= 4;
+      }
+    }
+
+    const canBottle = gen.num >= 7 && set.level === 100;
+    if (hpType && maxed) {
+      const ivs = gen.num === 2 ? HP[hpType].dvs : HP[hpType].ivs;
+      for (const stat of gen.stats) {
+        if (gen.num === 2) {
+          set.ivs[stat] = stat in ivs ? gen.stats.toIV(ivs[stat]!) : 31;
+        } else if (!canBottle) {
+          set.ivs[stat] = ivs[stat] ?? 31;
+        }
+      }
+      if (gen.num === 2) set.ivs.hp = gen.stats.toIV(gen.stats.getHPDV(set.ivs));
+    }
+
+    set.hpType = canBottle && maxed ? hpType : undefined;
 
     if (happiness === 'return') {
       set.happiness = 255;
