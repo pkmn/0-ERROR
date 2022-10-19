@@ -51,7 +51,7 @@ export const EndType = {
 
 export const Sizes = {
   1: 5,
-  2: 6,
+  2: 7,
 };
 
 export function *read(gen: Generation, options: {logs?: string}, usage: (m?: string) => void) {
