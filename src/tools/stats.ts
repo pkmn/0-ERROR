@@ -9,7 +9,7 @@ import {Generations, Generation, GenerationNum, ID} from '@pkmn/data';
 import {Lookup} from '@pkmn/engine';
 import {Dex} from '@pkmn/sim';
 
-import {Write} from './data';
+import {Read, Write} from './data';
 import {read} from './logs';
 
 interface Statistics {
@@ -73,10 +73,13 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
         stats.species[s] += weight;
         stats.total.usage += weight;
 
+        // FIXME track average team size so dont just naively multiply by 6
+
         if (index === 0) {
           stats.species_lead[s] += weight;
           stats.total.lead += weight;
         }
+        // FIXME non lead
 
         for (let j = 0; j < index; j++) {
           const t = lookup.specieByID(player.team[j].species as ID) - 1;
@@ -192,10 +195,10 @@ if (require.main === module) {
         let offset = 0;
         const id = lookup.specieByNum(i + 1);
 
-        const lead = db.readUInt16LE(offset + (i * 2)) / 100;
+        const lead = Read.u16(db, offset + (i * 2)) / 100;
         offset += sizes.Species * 2;
 
-        const nonlead = db.readUInt16LE(offset + (i * 2)) / 100;
+        const nonlead = Read.u16(db, offset + (i * 2)) / 100;
         offset += sizes.Species * 2;
 
         const usage = nonlead; // TODO: compute based on nonlead and lead!
@@ -203,9 +206,9 @@ if (require.main === module) {
         const moves: {[id: string]: number} = {};
         for (let j = 0; j < argv.moves; j++) {
           const off = offset + (i * argv.moves * 3) + (j * 3);
-          const move = db.readUint8(off);
+          const move = Read.u8(db, off);
           if (move === 0) break;
-          moves[lookup.moveByNum(move)] = db.readUint16LE(off + 1) / 100;
+          moves[lookup.moveByNum(move)] = Read.u16(db, off + 1) / 100;
         }
         offset += sizes.Species * argv.moves * 3;
 
@@ -214,8 +217,8 @@ if (require.main === module) {
           items = {};
           for (let j = 0; j < argv.moves; j++) {
             const off = offset + (i * argv.moves * 3) + (j * 3);
-            const item = db.readUint8(off);
-            const val = db.readUint16LE(off + 1);
+            const item = Read.u8(db, off);
+            const val = Read.u16(db, off + 1);
             if (item === 0 && val === 0) break;
             moves[lookup.itemByNum(item)] = val / 100;
           }
