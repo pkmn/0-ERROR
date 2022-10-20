@@ -5,7 +5,7 @@ import * as path from 'path';
 
 import minimist from 'minimist';
 
-import {Generations, Generation, GenerationNum, ID} from '@pkmn/data';
+import {Generations, Generation, ID, StatsTable} from '@pkmn/data';
 import {Lookup} from '@pkmn/engine';
 import {Dex} from '@pkmn/sim';
 
@@ -18,46 +18,48 @@ interface Statistics {
   species_lead: number[];
   move_species: {[num: number]: number}[];
   item_species: {[num: number]: number}[];
-  // ability_species: {[num: number]: number}[];
   species_species: number[][];
-  // move_move: number[][];
-  // move_item: number[][];
-  // move_ability: number[][];
-  // item_ability: number[][];
+  move_move: number[][];
 }
 
 function setup(gen: Generation) {
-  return {
-    lookup: Lookup.get(gen),
-    sizes: {
-      Species: Array.from(gen.species).length,
-      Moves: Array.from(gen.moves).length,
-      Items: gen.num < 2 ? 0 : Array.from(gen.items).length + 1,
-      Abilities: gen.num < 3 ? 0 : Array.from(gen.abilities).length,
-    },
+  const lookup = Lookup.get(gen);
+  const sizes = {
+    species: lookup.sizes.species,
+    moves: lookup.sizes.moves,
+    items: gen.num < 2 ? 0 : lookup.sizes.items + 1,
   };
+  return {lookup, sizes};
 }
 
 function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
-  const {sizes, lookup} = setup(gen);
+  const {lookup, sizes} = setup(gen);
 
   const stats: Statistics = {
     total: {lead: 0, usage: 0},
-    species: new Array(sizes.Species),
-    species_lead: new Array(sizes.Species),
-    move_species: new Array(sizes.Species),
-    item_species: new Array(sizes.Species),
-    species_species: new Array(sizes.Species),
+    species: new Array(sizes.species),
+    species_lead: new Array(sizes.species),
+    move_species: new Array(sizes.species),
+    item_species: new Array(sizes.species),
+    species_species: new Array(sizes.species),
+    move_move: new Array(sizes.moves),
   };
 
-  for (let i = 0; i < sizes.Species; i++) {
+  for (let i = 0; i < sizes.species; i++) {
     stats.species[i] = 0;
     stats.species_lead[i] = 0;
     stats.move_species[i] = {};
     stats.item_species[i] = {};
-    stats.species_species[i] = new Array(sizes.Species);
-    for (let j = 0; j < sizes.Species; j++) {
+    stats.species_species[i] = new Array(sizes.species);
+    for (let j = 0; j < sizes.species; j++) {
       stats.species_species[i][j] = 0;
+    }
+  }
+
+  for (let i = 0; i < sizes.moves; i++) {
+    stats.move_move[i] = new Array(sizes.moves);
+    for (let j = 0; j < sizes.moves; j++) {
+      stats.move_move[i][j] = 0;
     }
   }
 
@@ -68,7 +70,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
       if (!weight) continue;
 
       for (const [index, set] of player.team.entries()) {
-        const s = lookup.specieByID(set.species as ID) - 1;
+        const s = lookup.speciesByID(set.species as ID) - 1;
 
         stats.species[s] += weight;
         stats.total.usage += weight;
@@ -82,7 +84,7 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
         // FIXME non lead
 
         for (let j = 0; j < index; j++) {
-          const t = lookup.specieByID(player.team[j].species as ID) - 1;
+          const t = lookup.speciesByID(player.team[j].species as ID) - 1;
           stats.species_species[s][t] = (stats.species_species[t][s] += weight);
         }
 
@@ -110,6 +112,12 @@ function weighting(rating: number, deviation: number, cutoff: number) {
 
 function round(v: number, p = 1e4) {
   return Math.round(v * p);
+}
+
+function bias(stats: StatsTable) {
+  const [first, second] = Object.entries(stats).sort((a, b) => b[1] - a[1]);
+  // TODO: convert this pair (eg. 'atkhp') to a number
+  return first[0] > second[0] ? [first[0], second[0]] : [second[0], first[0]];
 }
 
 function erf(x: number) {
@@ -154,11 +162,9 @@ if (require.main === module) {
   const cmd = process.argv[2];
   const argv = minimist(process.argv.slice(3));
 
-  if (!argv.gen || argv.gen < 1 || argv.gen > 8) {
-    exit(argv.gen ? `Invalid gen ${argv.gen as number}` : 'No --gen provided');
-  }
+  if (!argv.gen) exit('No --gen provided');
   const gens = new Generations(Dex as any);
-  const gen = gens.get(argv.gen as GenerationNum);
+  const gen = gens.get(argv.gen);
   if (gen.num >= 3) exit(`Unsupported gen ${gen.num}`); // TODO
 
   argv.moves = argv.moves || (gen.num === 1 ? 15 : 20);
@@ -167,15 +173,15 @@ if (require.main === module) {
   switch (cmd) {
   case 'display': {
     // display --gen=1 --report=<pokemon|teammates>
-    const {sizes, lookup} = setup(gen);
+    const {lookup, sizes} = setup(gen);
 
     const db = fs.readFileSync(
       path.resolve(__dirname, '..', '..', 'src', 'lib', `gen${gen.num}`, 'data', 'stats.db')
     );
 
-    const N = (sizes.Species * 2) + (sizes.Species * 2) +
-      (sizes.Species * argv.moves * 3) +
-      (gen.num >= 2 ? sizes.Species * argv.items * 3 : 0);
+    const N = (sizes.species * 2) + (sizes.species * 2) +
+      (sizes.species * argv.moves * 3) +
+      (gen.num >= 2 ? sizes.species * argv.items * 3 : 0);
       // (sizes.Species * sizes.Species * 2);
     if (db.length !== N) {
       exit(`Corrupted stats.db of size ${db.length} (${N})`);
@@ -191,15 +197,15 @@ if (require.main === module) {
         items?: {[id: string]: number};
       }> = [];
 
-      for (let i = 0; i < sizes.Species; i++) {
+      for (let i = 0; i < sizes.species; i++) {
         let offset = 0;
-        const id = lookup.specieByNum(i + 1);
+        const id = lookup.speciesByNum(i + 1);
 
         const lead = Read.u16(db, offset + (i * 2)) / 100;
-        offset += sizes.Species * 2;
+        offset += sizes.species * 2;
 
         const nonlead = Read.u16(db, offset + (i * 2)) / 100;
-        offset += sizes.Species * 2;
+        offset += sizes.species * 2;
 
         const usage = nonlead; // TODO: compute based on nonlead and lead!
 
@@ -210,7 +216,7 @@ if (require.main === module) {
           if (move === 0) break;
           moves[lookup.moveByNum(move)] = Read.u16(db, off + 1) / 100;
         }
-        offset += sizes.Species * argv.moves * 3;
+        offset += sizes.species * argv.moves * 3;
 
         let items: {[id: string]: number} | undefined = undefined;
         if (gen.num >= 2) {
@@ -222,7 +228,7 @@ if (require.main === module) {
             if (item === 0 && val === 0) break;
             moves[lookup.itemByNum(item)] = val / 100;
           }
-          offset += sizes.Species * argv.items * 3;
+          offset += sizes.species * argv.items * 3;
         }
 
         pokemon.push({id, usage, lead, moves, items});
@@ -301,20 +307,20 @@ if (require.main === module) {
 
     const BY_VAL = (a: [string, number], b: [string, number]) => b[1] - a[1];
 
-    let buf = Buffer.alloc(sizes.Species * 2);
+    let buf = Buffer.alloc(sizes.species * 2);
     for (let i = 0; i < stats.species_lead.length; i++) {
       Write.u16(buf, round(stats.species_lead[i] / stats.total.lead), i * 2);
     }
     process.stdout.write(buf);
 
     // FIXME: want to track only NON lead statistics for other pokemon!
-    buf = Buffer.alloc(sizes.Species * 2);
+    buf = Buffer.alloc(sizes.species * 2);
     for (let i = 0; i < stats.species.length; i++) {
       Write.u16(buf, round((stats.species[i] / stats.total.usage) * 6), i * 2);
     }
     process.stdout.write(buf);
 
-    buf = Buffer.alloc(sizes.Species * argv.moves * 3);
+    buf = Buffer.alloc(sizes.species * argv.moves * 3);
     for (let i = 0; i < stats.move_species.length; i++) {
       const moves = Object.entries(stats.move_species[i]).sort(BY_VAL);
       for (let j = 0; j < Math.min(moves.length, argv.moves); j++) {
@@ -327,7 +333,7 @@ if (require.main === module) {
     process.stdout.write(buf);
 
     if (gen.num >= 2) {
-      buf = Buffer.alloc(sizes.Species * argv.items * 3);
+      buf = Buffer.alloc(sizes.species * argv.items * 3);
       for (let i = 0; i < stats.item_species.length; i++) {
         const items = Object.entries(stats.item_species[i]).sort(BY_VAL);
         for (let j = 0; j < Math.min(items.length, argv.items); j++) {
@@ -340,10 +346,10 @@ if (require.main === module) {
       process.stdout.write(buf);
     }
 
-    // buf = Buffer.alloc(sizes.Species * sizes.Species * 2);
-    // for (let i = 0; i < sizes.Species; i++) {
-    //   for (let j = 0; j < sizes.Species; j++) {
-    //     const offset = (i * sizes.Species) + (j * 2);
+    // buf = Buffer.alloc(sizes.species * sizes.species * 2);
+    // for (let i = 0; i < sizes.species; i++) {
+    //   for (let j = 0; j < sizes.species; j++) {
+    //     const offset = (i * sizes.species) + (j * 2);
     //     const weight = stats.species[i];
     //     const w = stats.species_species[i][j];
     //     const usage = (stats.species[j] / stats.total.usage) * 6;

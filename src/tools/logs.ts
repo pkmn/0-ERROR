@@ -8,11 +8,11 @@ import {execFileSync} from 'child_process';
 
 import minimist from 'minimist';
 
-import {Generations, Generation, GenerationNum, PokemonSet} from '@pkmn/data';
+import {Generations, Generation, PokemonSet} from '@pkmn/data';
 import {Dex} from '@pkmn/sim';
 
 import {Read, Write} from './data';
-import {encode, decode} from './sets';
+import {encode, decode, Sizes} from './sets';
 
 interface Log {
   timestamp: string;
@@ -48,11 +48,6 @@ export const EndType = {
   ForcedWin: 3,
   ForcedTie: 4,
 } as const;
-
-export const Sizes = {
-  1: 5,
-  2: 7,
-};
 
 export function *read(gen: Generation, options: {logs?: string}, usage: (m?: string) => void) {
   if (!options.logs || !fs.existsSync(options.logs)) {
@@ -151,11 +146,9 @@ if (require.main === module) {
   };
 
   const argv = minimist(process.argv.slice(2));
-  if (!argv.gen || argv.gen < 1 || argv.gen > 8) {
-    usage(argv.gen ? `Invalid gen ${argv.gen as number}` : 'No --gen provided');
-  }
+  if (!argv.gen) usage('No --gen provided');
   const gens = new Generations(Dex as any);
-  const gen = gens.get(argv.gen as GenerationNum);
+  const gen = gens.get(argv.gen);
   if (gen.num >= 3) usage(`Unsupported gen ${gen.num}`); // TODO
   const format = `gen${gen.num}ou`;
 

@@ -5,11 +5,11 @@ import * as path from 'path';
 
 import minimist from 'minimist';
 
-import {Generations, GenerationNum, PokemonSet} from '@pkmn/data';
+import {Generations, PokemonSet} from '@pkmn/data';
 import {Dex} from '@pkmn/sim';
 
-import {Sizes, read} from './logs';
-import {encode, decode} from './sets';
+import {read} from './logs';
+import {encode, decode, Sizes} from './sets';
 
 const usage = (msg?: string): void => {
   if (msg) console.error(msg);
@@ -21,11 +21,9 @@ if (process.argv.length < 3) usage();
 const cmd = process.argv[2];
 const argv = minimist(process.argv.slice(3), {default: {num: 10000}});
 
-if (!argv.gen || argv.gen < 1 || argv.gen > 8) {
-  usage(argv.gen ? `Invalid gen ${argv.gen as number}` : 'No --gen provided');
-}
+if (!argv.gen) usage('No --gen provided');
 const gens = new Generations(Dex as any);
-const gen = gens.get(argv.gen as GenerationNum);
+const gen = gens.get(argv.gen);
 if (gen.num >= 3) usage(`Unsupported gen ${gen.num}`); // TODO
 
 const N = 6 * Sizes[gen.num as keyof typeof Sizes];
@@ -49,6 +47,7 @@ case 'compute': {
   for (const data of read(gen, argv as {logs?: string}, usage)) {
     for (const player of [data.winner, data.loser]) {
       const rating = player.rating ? player.rating.rpr - player.rating.rprd : 0;
+      // TODO: in gen 3+ we must use computed stats for dedupe key!
       const team = gen.num === 1
         ? player.team.map(s => `${s.species!}|${s.moves!.join(',')}`).join(']')
         : player.team.map(s => `${s.species!}|${s.item || ''}|${s.moves!.join(',')}`).join(']');
