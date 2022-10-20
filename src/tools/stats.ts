@@ -26,7 +26,7 @@ function setup(gen: Generation) {
   const lookup = Lookup.get(gen);
   const sizes = {
     species: lookup.sizes.species,
-    moves: lookup.sizes.moves,
+    moves: lookup.sizes.moves + (gen.num < 2 ? 0 : 16),
     items: gen.num < 2 ? 0 : lookup.sizes.items + 1,
   };
   return {lookup, sizes};
@@ -88,9 +88,8 @@ function compute(gen: Generation, options: {logs?: string; cutoff: number}) {
           stats.species_species[s][t] = (stats.species_species[t][s] += weight);
         }
 
-        // FIXME: Hidden Power handling!
         for (const move of set.moves!) {
-          const m = lookup.moveByID(move as ID);
+          const m = moveByID(lookup, move as ID);
           stats.move_species[s][m] = (stats.move_species[s][m] || 0) + weight;
         }
 
@@ -214,7 +213,7 @@ if (require.main === module) {
           const off = offset + (i * argv.moves * 3) + (j * 3);
           const move = Read.u8(db, off);
           if (move === 0) break;
-          moves[lookup.moveByNum(move)] = Read.u16(db, off + 1) / 100;
+          moves[moveByNum(lookup, move)] = Read.u16(db, off + 1) / 100;
         }
         offset += sizes.species * argv.moves * 3;
 
@@ -320,13 +319,15 @@ if (require.main === module) {
     }
     process.stdout.write(buf);
 
-    buf = Buffer.alloc(sizes.species * argv.moves * 3);
+    const n = gen.num < 2 ? 3 : 4;
+    const write = gen.num < 2 ? Write.u8 : Write.u16;
+    buf = Buffer.alloc(sizes.species * argv.moves * n);
     for (let i = 0; i < stats.move_species.length; i++) {
       const moves = Object.entries(stats.move_species[i]).sort(BY_VAL);
       for (let j = 0; j < Math.min(moves.length, argv.moves); j++) {
         const [key, weight] = moves[j];
-        const offset = (i * argv.moves * 3) + (j * 3);
-        Write.u8(buf, +key, offset);
+        const offset = (i * argv.moves * n) + (j * n);
+        write(buf, +key, offset);
         Write.u16(buf, round(weight / stats.species[i]), offset + 1);
       }
     }
@@ -363,3 +364,20 @@ if (require.main === module) {
   }
 }
 
+const HP_TYPE_TO_NUM = {
+  fighting: 0, flying: 1, poison: 2, ground: 3, rock: 4, bug: 5, ghost: 6, steel: 7,
+  fire: 8, water: 9, grass: 10, electric: 11, psychic: 12, ice: 13, dragon: 14, dark: 15,
+} as const;
+const NUM_TO_HP_TYPE = Object.values(HP_TYPE_TO_NUM);
+
+function moveByID(lookup: Lookup, move: ID) {
+  return (move.startsWith('hiddenpower')
+    ? lookup.sizes.moves + HP_TYPE_TO_NUM[move.slice(11) as keyof typeof HP_TYPE_TO_NUM]
+    : lookup.moveByID(move));
+}
+
+function moveByNum(lookup: Lookup, num: number) {
+  return (num >= lookup.sizes.moves
+    ? `hiddenpower${NUM_TO_HP_TYPE[num]}` as ID
+    : lookup.moveByNum(num));
+}

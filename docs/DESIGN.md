@@ -91,9 +91,9 @@ Smogon](https://www.smogon.com/forums/threads/gen-8-smogon-university-usage-stat
 are acceptable for per-Pokémon information, but in order to predict sets more realistically 0 ERROR
 relies on global information about combination **correlation** in the metagame - naive use of the
 generally available usage statistics cannot prevent unrealistic and suboptimal sets (e.g. sets with
-both Flamethrower and Fire Blast, sets invested in Attack with no physical moves, etc). 0 ERROR
-computes its own [stats](../src/tools/README.md#stats.ts) based on an extensive database of human
-battle logs and this database is embedded in the binary.
+both Flamethrower and Fire Blast or multiple Hidden Powers, sets invested in Attack with no physical
+moves, etc). 0 ERROR computes its own [stats](../src/tools/README.md#stats.ts) based on an extensive
+database of human battle logs and this database is embedded in the binary.
 
 Over the course of battle, 0 ERROR also maintains information about the **possibilities** for each
 of their opponent's Pokémon's sets. These possibilities are narrowed down as information is revealed
