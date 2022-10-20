@@ -62,21 +62,23 @@ TODO timer might not be turned on - need to revert to (**TODO** constant)
 For comparison purposes, 0 ERROR can be configured to run in "omniscient" mode (alternatively
 referred to in the literature as "cheating"). There are several "levels" of omniscience:
 
-1. Knowledge of a limited amount of **unknown information** (whether the player's active Pokémon is
-   trapped or disabled)
+1. Knowledge of **available choices** (whether the player's active Pokémon is trapped or disabled)
    - this is mostly a development convenience (allows you to be fully aware of the available choices
      without having to deal with uncertainty) and has relatively minor implications to actual
      playing strength or realism
-2. Full knowledge of the **opponent's team** makeup and configuration
+2. Knowledge of an **opponent's HP** (either exact HP or increased accuracy via the `HP Percentage Clause Mod`)
+   - helpful for being able to perform reverse damage calculation and more quickly infer the
+     opponent's sets, but still minor enough to not have dramatic gameplay implications
+3. Full knowledge of the **opponent's team** makeup and configuration
    - this is significantly more artificial as it removes the aspect of information gathering/hiding
      and provides a significant advantage to the player, but as the battle progresses well developed
      [team prediction](#team-prediction) will eventually determine this information anyway
-3. Knowledge of the actual **original seed** (which both provides full information on existing
+4. Knowledge of the actual **original seed** (which both provides full information on existing
    unknown information such as duration of various statuses and limited knowledge of immediate
    future outcomes)
     - this helps determinize the game tree and removes a large amount of the stochasticity, though
       the amount of unknowns revealed means that game play starts to get too artificial
-4. Knowledge of the **opponent's upcoming move** during the current turn
+5. Knowledge of the **opponent's upcoming move** during the current turn
     - this is interesting in that it sequentializes the game (thus removing the complications of
       dealing with simultaneity), but signficantly changes both [time management](#time-management)
       and realism to the point where it is uninteresting to pursue
