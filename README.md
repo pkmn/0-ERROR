@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="0-ERROR" width="488" height="488" src="https://pkmn.cc/0-ERROR.png" style="image-rendering: pixelated" />
+  <img alt="0 ERROR" width="488" height="488" src="https://pkmn.cc/0-ERROR.png" style="image-rendering: pixelated" />
   <br />
   <br />
   <a href="https://github.com/pkmn/0-ERROR/actions/workflows/test.yml">
@@ -22,9 +22,9 @@ tracking and prediction engine and enables offline play in the
 
 ## License
 
-0-ERROR is licensed under the [Creative Commons BY-NC-ND 4.0
+0 ERROR is licensed under the [Creative Commons BY-NC-ND 4.0
 license](https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode). This is atypical, CC BY-NC-ND
-is **not** an [open source license](https://opensource.org/licenses), **0-ERROR code and
+is **not** an [open source license](https://opensource.org/licenses), **0 ERROR code and
 derivatives may not be used for commercial purposes** (including, but not limited to, hosting with
 any sort of advertising) and **you may not distribute this code with any modifications**. Please
 read the license carefully for full details.
