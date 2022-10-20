@@ -46,9 +46,7 @@ The resulting binary `teams.db` can then be inspected with the same tool:
 The encoding of the team matches that of the teams stored in the `logs.db` and as such depends on
 the generation of the team in question:
 
-### Generation I
-
-<details><summary>5 bytes per Pokémon</summary>
+<details><summary><b>Generation I</b></summary>
 
 | Start | End | Data                      |
 | ----- | --- | ------------------------- |
@@ -60,9 +58,7 @@ the generation of the team in question:
 
 </details>
 
-### Generation II
-
-<details><summary>7 bytes per Pokémon</summary>
+<details><summary><b>Generation II</b></summary>
 
 | Start | End | Data                            |
 | ----- | --- | ------------------------------- |
@@ -76,9 +72,7 @@ the generation of the team in question:
 
 </details>
 
-### Generation III - V
-
-<details><summary>24 bytes per Pokémon</summary>
+<details><summary><b>Generation III - V</b></summary>
 
 | Start | End | Data                          |
 | ----- | --- | ----------------------------- |
@@ -96,9 +90,7 @@ the generation of the team in question:
 
 </details>
 
-### Generation VI & VIII[^1]
-
-<details><summary>25 bytes per Pokémon</summary>
+<details><summary><b>Generation VI & VIII</b></summary>
 
 | Start | End | Data                            |
 | ----- | --- | ------------------------------- |
@@ -114,11 +106,12 @@ the generation of the team in question:
 | 20    | 24  | The Pokémon's IVs               |
 | 24    | 25  | The Pokémon's level             |
 
+Since [Dynamax is banned in OU](https://www.smogon.com/forums/threads/dynamax-is-banned-from-ou-explanation-information.3657917/#post-8316142)
+in Generation VIII, the encoding doesn't need an extra byte for `dynamaxLevel` and `gigantamax`.
+
 </details>
 
-### Generation VII
-
-<details><summary>26 bytes per Pokémon</summary>
+<details><summary><b>Generation VII</b></summary>
 
 | Start | End | Data                            |
 | ----- | --- | ------------------------------- |
@@ -136,9 +129,6 @@ the generation of the team in question:
 | 25    | 26  | The Pokémon's Hidden Power type |
 
 </details>
-
-[^1]: Since [Dynamax is banned in OU](https://www.smogon.com/forums/threads/dynamax-is-banned-from-ou-explanation-information.3657917/#post-8316142)
-in Generation VIII, the encoding doesn't need an extra byte for `dynamaxLevel` and `gigantamax`.
 
 ## [Stats](stats.ts)
 
@@ -189,7 +179,7 @@ a battle:
 
 - `species_species`: $\Delta P(Species_B | Species_A)$, **TODO**
 - `move_move`: $\Delta P(Move_B | Move_A)$, **TODO**
-- `move_item`: $\Delta P(Move | Item)$, in Generation III[^2] and onwward, **TODO**
+- `move_item`: $\Delta P(Move | Item)$, in Generation III[^1] and onwward, **TODO**
 - `move_ability`: $\Delta P(Move | Ability)$, in Generation III and onward, **TODO**
 - `item_ability`: $\Delta P(Item | Ability)$, in Generation III and onward, **TODO**
 - `ability_bias`: $\Delta P(Ability | Bias)$, in Generation III and onward, **TODO**
@@ -207,7 +197,7 @@ official scripts even in places where they purport to measure the same thing:
 - Smogon's "Teammate" statistics do not properly account for **`"empty"`** slots, skewing the
   denominator
 
-[^2]: While items exist in Generation II, the `move_item` correlation is only considered in
+[^1]: While items exist in Generation II, the `move_item` correlation is only considered in
 Generation III and onward as there isn't enough variety in viable items in Generation II to justify
 the overhead.
 
