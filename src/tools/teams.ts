@@ -8,8 +8,8 @@ import minimist from 'minimist';
 import {Generations, PokemonSet} from '@pkmn/data';
 import {Dex} from '@pkmn/sim';
 
+import {encode, decode, Sizes} from './data';
 import {read} from './logs';
-import {encode, decode, Sizes} from './sets';
 
 const usage = (msg?: string): void => {
   if (msg) console.error(msg);

@@ -11,8 +11,7 @@ import minimist from 'minimist';
 import {Generations, Generation, PokemonSet} from '@pkmn/data';
 import {Dex} from '@pkmn/sim';
 
-import {Read, Write} from './data';
-import {encode, decode, Sizes} from './sets';
+import {encode, decode, Read, Write, Sizes} from './data';
 
 interface Log {
   timestamp: string;
