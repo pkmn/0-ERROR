@@ -166,7 +166,7 @@ computed with rating `CUTOFF` from the `LOGS` database (where the logs database 
     that the move is included in a Pokémon's set
   - `item_species`:  $P(Item | Species)$, in Generation II and onward, the probability for the top
     $I$ items used by a species that the item is included in a Pokémon's set
-  - `ability_species`:  $P(Item | Ability)$, in Generation III and onward, the probability for the
+  - `ability_species`:  $P(Ability | Species)$, in Generation III and onward, the probability for the
     top $A$ abilities available to a species that the ability is included in a Pokémon's set
 
   Additionally, various "correlation deltas" are computed which are intended to be used to modify
@@ -192,9 +192,16 @@ computed with rating `CUTOFF` from the `LOGS` database (where the logs database 
     arithmetic**](https://en.wikipedia.org/wiki/Floating-point_arithmetic) and rounding schemes used
   - Smogon's "Teammate" statistics do not properly account for **`"empty"`** slots, skewing the
     denominator
+  - Smogon assumes teams always contain 6 (the maximum) Pokémon instead of determining the actual
+    average number of team members present
 
   [^1]: While items exist in Generation II, the `move_item` correlation is only considered in
   Generation III and onward as there isn't enough variety in viable items in Generation II to justify
   the overhead.
 
-  TODO: Bias = highest two stats or highest two stats EVs spent on?
+  TODO: correlations need to be done on a second pass because need all available options to be
+  accounted for so that can figure out eg. which moves are present on a pokemon to be able to
+  compute `move_move` and `move_ability`.
+  TODO: footnote about backfilling in low percentage data
+  with data from lower tiers and caveats (also, requires multiple input databases or a field
+  indicating format)
