@@ -1,4 +1,5 @@
 {
+  "private": true,
   "main": "build/pkg/index.js",
   "types": "build/pkg/index.d.ts",
   "repository": "github:pkmn/0-ERROR",
@@ -11,7 +12,7 @@
     "@babel/preset-typescript": "^7.18.6",
     "@pkmn/eslint-config": "^2.11.0",
     "@pkmn/data": "^0.6.1",
-    "@pkmn/sim": "^0.6.1",
+    "@pkmn/dex": "^0.6.1",
     "@types/jest": "^29.2.0",
     "@types/minimist": "^1.2.2",
     "@types/node": "^18.11.2",
@@ -39,10 +40,7 @@
     "coverageProvider": "v8",
     "verbose": false,
     "testEnvironment": "node",
-    "testPathIgnorePatterns": ["node_modules/", "build/", "lib/"],
-    "moduleNameMapper": {
-      "^@pkmn/sim/(.*)$": "<rootDir>/node_modules/@pkmn/sim/build/sim/$1"
-    }
+    "testPathIgnorePatterns": ["node_modules/", "build/", "lib/"]
   },
   "babel": {
     "presets": [
