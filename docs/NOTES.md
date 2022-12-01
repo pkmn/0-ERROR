@@ -67,6 +67,7 @@
 - **Search in games with incomplete information: a case study using Bridge card play**
 - **Lower Bounding Klondike Solitaire with Monte-Carlo Planning**
 - **Ensemble Monte-Carlo Planning: An Empirical Study**
+- **Mastering the Game of Stratego with Model-Free Multiagent Reinforcement Learning**
 
 ## Pokémon
 

@@ -81,6 +81,8 @@
   play](papers/bridge-study.pdf)
 - [Lower Bounding Klondike Solitaire with Monte-Carlo Planning](papers/klondike.pdf)
 - [Ensemble Monte-Carlo Planning: An Empirical Study](papers/ensemble-mc.pdf)
+- [Mastering the Game of Stratego with Model-Free Multiagent Reinforcement
+  Learning](deepmind-stratego.pdf)
 
 ## Pokémon
 
