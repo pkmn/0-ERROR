@@ -89,25 +89,25 @@ referred to in the literature as "cheating"). There are several "levels" of omni
 
 **Usage statistics** computed from human players are required in order to accurately predict what an
 opponent's team might look like. The [usage statistics produced by
-Smogon](https://www.smogon.com/forums/threads/gen-8-smogon-university-usage-statistics-discussion-thread.3657197/#post-8300550)
-are acceptable for per-Pokémon information, but in order to predict sets more realistically 0 ERROR
-relies on global information about combination **correlation** in the metagame - naive use of the
-generally available usage statistics cannot prevent unrealistic and suboptimal sets (e.g. sets with
-both Flamethrower and Fire Blast or multiple Hidden Powers, sets invested in Attack with no physical
-moves, etc). 0 ERROR computes its own [stats](../src/tools/README.md#stats.ts) based on an extensive
-database of human battle logs and this database is embedded in the binary.
+Smogon](https://www.smogon.com/forums/posts/9419389/show/) are acceptable for per-Pokémon
+information, but in order to predict sets more realistically 0 ERROR relies on global information
+about combination **correlation** in the metagame - naive use of the generally available usage
+statistics cannot prevent unrealistic and suboptimal sets (e.g. sets with both Flamethrower and Fire
+Blast or multiple Hidden Powers, sets invested in Attack with no physical moves, etc). 0 ERROR
+computes its own [stats](https://github.com/pkmn/stats/tree/main/tools#stats) based on an extensive
+database of human battle logs and relies on this data to make predictions.
 
 Over the course of battle, 0 ERROR also maintains information about the **possibilities** for each
 of their opponent's Pokémon's sets. These possibilities are narrowed down as information is revealed
-(through the battle protocol or inferred via EPOké, possibly with the help of reverse damage
-calculation). These possibilities are stored as "masks" over the data in the usage statistics
-(symmetrical tables which only contain the value 0 or 1) - when options are eliminated the matching
-indexes are masked off. These tables are then combined with the original usage statistics to remove
-impossible options, after which the team prediction/generation process begins over the remaining
-options:
+(through the battle protocol or inferred via [EPOké](https://github.com/pkmn/EPOke), possibly with
+the help of reverse damage calculation). These possibilities are stored as "masks" over the data in
+the usage statistics (symmetrical tables which only contain the value 0 or 1) - when options are
+eliminated the matching indexes are masked off. These tables are then combined with the original
+usage statistics to remove impossible options, after which the team prediction/generation process
+begins over the remaining options:
 
 1. For each unrevealed team member, update the **species** statistics for each team member (either
-   revealed or predicted) based on the correlation deltas and sample from the updated statistics
+   revealed or predicted) based on the correlation deltas and sample from the updated statistics.
 2. For each species, select a spread and level (**stats**) - combinations which are not possible
    given the ranges revealed will have already been removed, if all ranges were already masked off
    then [`@pkmn/spreads`](https://github.com/pkmn/EPOke/tree/main/spreads) can be used to fix a
@@ -115,19 +115,30 @@ options:
    spreads is effectively deterministic (maximum stats, outside of edge cases such as Attack DVs for
    Pokémon without physical attacks, Hidden Power, Marowak, etc). in Generation III and onward the
    Pokémon's '**bias**' is computed for the spread based on the two stats with the highest
-   investment (eg. `6 HP / 252 Atk / 252 Spe` = `(atk, spe)`)
+   investment (eg. `6 HP / 252 Atk / 252 Spe` = `(atk, spe)`).
 3. In Generation III and onward, select the **ability** after modifying the options based on the
    correlation delta of the bias. Ability is chosen early on as certain abilities can dramatically
-   change the rest of the set of a Pokémon (eg. Zen Mode)
+   change the rest of the set of a Pokémon (eg. Zen Mode).
 4. In Generation II and onward, select the **item** after modifying the available options based on
-   the correlation deltas for both bias and ability
+   the correlation deltas for both bias and ability.
 5. **Moves** are then selected after adjusting for bias, ability, and item where present and then
    based on other revealed or predicted moves in the set.
 
 In order the amortize of cost of generating a predicted team each search iteration, 0 ERROR performs
 (**TODO** constant) searches with the same predicted team. Furthermore, team generation performance
-is improved by leveraging [Vose's alias method](https://en.wikipedia.org/wiki/Alias_method),
-prebuilding tables to make sampling efficient.
+is improved through several optimizations:
+
+- [Vose's alias method](https://en.wikipedia.org/wiki/Alias_method) can be used to sample the first
+  unknown species for each team (subsequent choices all depend on the first choice and thus their
+  weights get dynamically updated, but the first choice base purely off of revealed/inferred battle
+  state can be optimized with the prebuilt alias tables)
+- the total weights for each option pool can be saved and updated at the same time the weights are
+  updated, such that each step only requires at worst $2N$ iterations
+- the choices for each option at each step begin sorted which increases the likelihood that sampling
+  will be able to arrive at the sampled pick early on in its iteration. Reweighting based on
+  Correlation deltas could cause large changes to the original weights which render this to no
+  longer be true, though in practice this property should roughly hold or could be fairly easily
+  maintained with some local reranking if desirable
 
 The combination of (local, per-Pokémon) usage statistics and possiblity masks with (global,
 per-metagame) correlation deltas aims to ensure realistic sets with a minimum amount of space
