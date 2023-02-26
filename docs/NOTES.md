@@ -42,6 +42,9 @@
 - **jbradberry/mcts**
 - **int8/monte-carlo-tree-search**
   - **Monte Carlo Tree Search - beginners guide**
+- **A Deep Dive into Monte Carlo Tree Search**
+- **Analysis of Hannan Consistent Selection for Monte Carlo Tree Search in Simultaneous Move
+  Games**
 
 ### Parallel
 
@@ -68,6 +71,7 @@
 - **Lower Bounding Klondike Solitaire with Monte-Carlo Planning**
 - **Ensemble Monte-Carlo Planning: An Empirical Study**
 - **Mastering the Game of Stratego with Model-Free Multiagent Reinforcement Learning**
+- **Matrix games with bandit feedback**
 
 ## Pokémon
 

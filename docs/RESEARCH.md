@@ -52,6 +52,9 @@
 - [int8/monte-carlo-tree-search](https://github.com/int8/monte-carlo-tree-search)
   - [Monte Carlo Tree Search - beginners
     guide](https://int8.io/monte-carlo-tree-search-beginners-guide/)
+- [A Deep Dive into Monte Carlo Tree Search](https://www.moderndescartes.com/essays/deep_dive_mcts/)
+- [Analysis of Hannan Consistent Selection for Monte Carlo Tree Search in Simultaneous Move
+  Games](papers/mcts-hannan.pdf)
 
 ### Parallel
 
@@ -83,6 +86,7 @@
 - [Ensemble Monte-Carlo Planning: An Empirical Study](papers/ensemble-mc.pdf)
 - [Mastering the Game of Stratego with Model-Free Multiagent Reinforcement
   Learning](deepmind-stratego.pdf)
+- [Matrix games with bandit feedback](papers/matrix-bandit.pdf)
 
 ## Pokémon
 
