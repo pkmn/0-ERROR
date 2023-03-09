@@ -11,7 +11,8 @@
 **0 ERROR** is a competitive Pokémon battling AI based around [Monte Carlo tree search
 (MCTS)](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) and battle state evaluation
 heuristics. 0 ERROR relies on [EPOké](https://github.com/pkmn/EPOke)'s enhanced battle state
-tracking and prediction engine and enables offline play in the
+tracking and prediction capabilities as well as an optimized battle simulation
+[engine](https://github.com/pkmn/engine) and enables offline play in the
 [PocketMon](https://github.com/pkmn/PocketMon) client UI.
 
 ## License
