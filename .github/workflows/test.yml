@@ -6,14 +6,14 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: true
       - run: npm install
       - run: npm run compile
       - run: npm run lint

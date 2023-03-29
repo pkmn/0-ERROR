@@ -1,3 +1,0 @@
-[submodule "lib/pkmn"]
-	path = lib/pkmn
-	url = https://github.com/pkmn/engine

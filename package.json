@@ -4,7 +4,7 @@
   "types": "build/pkg/index.d.ts",
   "repository": "github:pkmn/0-ERROR",
   "dependencies": {
-    "@pkmn/engine": "file:lib/pkmn",
+    "@pkmn/engine": "^0.1.0-dev.7f37a47c",
     "@pkmn/sets": "^4.0.0"
   },
   "devDependencies": {
@@ -31,8 +31,7 @@
     "fix": "eslint --fix src --ext ts,js",
     "compile": "tsc -p .",
     "build": "npm run compile",
-    "test": "jest",
-    "postinstall": "npm -C lib/pkmn install --ignore-scripts && npm -C lib/pkmn run compile"
+    "test": "jest"
   },
   "jest": {
     "collectCoverageFrom": [ "src/pkg/*.ts"],
