@@ -7,13 +7,12 @@ pub fn build(b: *std.Build) !void {
     const release = if (std.os.getenv("DEBUG_PKMN_ENGINE")) |_| false else true;
     const target = std.zig.CrossTarget{};
 
-    const NODE_MODULES = b.pathJoin(&.{ "node_modules", "@pkmn", "@engine", "build" });
-
     const showdown =
         b.option(bool, "showdown", "Enable Pokémon Showdown compatibility mode") orelse false;
-    const module = pkmn.module(b, .{ .showdown = showdown }); // FIXME plumb through optimize mode
+    const module = pkmn.module(b, .{ .showdown = showdown });
     b.getInstallStep().dependOn(&InstallEngineStep.create(b, showdown).step);
 
+    const NODE_MODULES = b.pathJoin(&.{ "node_modules", "@pkmn", "@engine", "build" });
     const node = if (b.findProgram(&.{"node"}, &.{})) |path| path else |_| {
         try std.io.getStdErr().writeAll("Cannot find node\n");
         std.process.exit(1);
