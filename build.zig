@@ -12,6 +12,7 @@ pub fn build(b: *std.Build) !void {
     const showdown =
         b.option(bool, "showdown", "Enable Pokémon Showdown compatibility mode") orelse false;
     const module = pkmn.module(b, .{ .showdown = showdown }); // FIXME plumb through optimize mode
+    b.getInstallStep().dependOn(&InstallEngineStep.create(b, showdown).step);
 
     const node = if (b.findProgram(&.{"node"}, &.{})) |path| path else |_| {
         try std.io.getStdErr().writeAll("Cannot find node\n");
@@ -123,6 +124,44 @@ fn exists(path: []const u8) !bool {
         else => return err,
     };
 }
+
+const InstallEngineStep = struct {
+    b: *std.Build,
+    step: std.Build.Step,
+    showdown: bool,
+
+    fn create(b: *std.Build, showdown: bool) *InstallEngineStep {
+        const self = b.allocator.create(InstallEngineStep) catch unreachable;
+        self.* = .{
+            .b = b,
+            .step = std.build.Step.init(.{
+                .id = .custom,
+                .name = "install engine",
+                .owner = b,
+                .makeFn = make,
+            }),
+            .showdown = showdown,
+        };
+        return self;
+    }
+
+    fn make(step: *std.Build.Step, _: *std.Progress.Node) !void {
+        const self = @fieldParentPtr(InstallEngineStep, "step", step);
+        const install = self.b.findProgram(
+            &.{"install-pkmn-engine"},
+            &.{self.b.pathJoin(&.{ "node_modules", ".bin" })},
+        ) catch unreachable;
+        const options =
+            self.b.fmt("--options=-Dtrace{s}", .{if (self.showdown) " -Dshowdown" else ""});
+
+        var child = std.ChildProcess.init(&.{ install, options }, self.b.allocator);
+        child.stdout_behavior = std.ChildProcess.StdIo.Ignore;
+        child.stderr_behavior = std.ChildProcess.StdIo.Ignore;
+        _ = child.spawnAndWait() catch |err| {
+            return step.fail("failed run install-pkmn-engine: {s}", .{@errorName(err)});
+        };
+    }
+};
 
 const InstallAddonStep = struct {
     b: *std.Build,
