@@ -12,12 +12,22 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      # Setup
       - uses: actions/checkout@v3
       - uses: goto-bus-stop/setup-zig@v2
       - run: npm install
+      # Test
       - run: zig build test
       - run: npm run compile
       - run: npm test
       - run: npm run lint
       - run: zig build lint
+      # Release
+      - run: npm pack
+      - run: mv pkmn-ai-latest.tgz web.tar.gz
+      - run: gh release delete latest --cleanup-tag --yes
+        continue-on-error: true
+      - run: gh release create latest --prerelease --title Latest web.tar.gz
