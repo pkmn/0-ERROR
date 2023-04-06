@@ -14,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: goto-bus-stop/setup-zig@v2
       - run: npm install
+      - run: zig build test
       - run: npm run compile
+      - run: npm test
       - run: npm run lint
+      - run: zig build lint

@@ -1,6 +1,21 @@
 
 ---
 
+### Build
+
+```ts
+// TODO:
+//
+// pkmn/engine/libpkmn.node/wasm = only used testing/training, should NOT be bundled
+// build/addon.node = *IS* and extended libpkmn
+//
+// - not configurable, just release or no based on DEBUG_PKMN_ENGINE env var
+// - run node_modules/.bin/install-pkmn-engine with -Dtrace and showdown based on -Dshowdown=false|true
+// depend on node headers and libs being in specific places
+//
+// FIXME: look in places install-pkmn-engine should have put headers etc
+```
+
 ### Algorithm
 
 1. At the beginning of the battle, prediction possibility tables are initialized and the worker pool
