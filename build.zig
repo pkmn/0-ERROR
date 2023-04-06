@@ -17,16 +17,14 @@ pub fn build(b: *std.Build) !void {
         b.option(bool, "showdown", "Enable Pokémon Showdown compatibility mode") orelse false;
     const module = pkmn.module(b, .{ .showdown = showdown }); // FIXME plumb through optimize mode
 
-    // TODO: uncomment once fix for install-pkmn-engine lands
-    // TODO: do not run if not install step!
-    // if (b.findProgram(&[_][]const u8{"install-pkmn-engine"}, &[_][]const u8{BIN})) |install| {
-    //     const options = b.fmt("--options=-Dtrace{s}", .{if (showdown) " -Dshowdown" else ""});
-    //     const sh = b.addSystemCommand(&[_][]const u8{ install, options });
-    //     b.getInstallStep().dependOn(&sh.step);
-    // } else |_| {
-    //     try std.io.getStdErr().writeAll("Cannot find install-pkmn-engine - run `npm install`\n");
-    //     std.process.exit(1);
-    // }
+    if (b.findProgram(&[_][]const u8{"install-pkmn-engine"}, &[_][]const u8{BIN})) |install| {
+        const options = b.fmt("--options=-Dtrace{s}", .{if (showdown) " -Dshowdown" else ""});
+        const sh = b.addSystemCommand(&[_][]const u8{ install, options });
+        b.getInstallStep().dependOn(&sh.step);
+    } else |_| {
+        try std.io.getStdErr().writeAll("Cannot find install-pkmn-engine - run `npm install`\n");
+        std.process.exit(1);
+    }
 
     const node = if (b.findProgram(&[_][]const u8{"node"}, &[_][]const u8{})) |path| path else |_| {
         try std.io.getStdErr().writeAll("Cannot find node\n");
