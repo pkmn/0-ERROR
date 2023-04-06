@@ -1,37 +1,47 @@
 {
-  "private": true,
+  "name": "@pkmn/ai",
+  "version": "latest",
+  "sideEffects": false,
   "repository": "github:pkmn/0-ERROR",
   "main": "build/pkg/index.js",
   "types": "build/pkg/index.d.ts",
-  "sideEffects": false,
+  "files": [
+    "build/lib/addon.wasm",
+    "build/pkg/index.d.ts",
+    "build/pkg/index.js",
+    "build/pkg/index.js.map"
+  ],
   "engines": {"node": ">=16.0.0"},
   "dependencies": {
     "@pkmn/data": "^0.7.35",
-    "@pkmn/engine": "^0.1.0-dev.545e0ef3",
+    "@pkmn/engine": "^0.1.0-dev.84cc1a02",
     "@pkmn/sets": "^5.0.4"
   },
   "devDependencies": {
-    "@pkmn/eslint-config": "^3.0.0",
     "@pkmn/dex": "^0.7.35",
+    "@pkmn/eslint-config": "^3.0.0",
     "@types/jest": "^29.5.0",
     "@types/minimist": "^1.2.2",
     "@types/node": "^18.15.11",
+    "@types/ws": "^8.5.4",
     "@vitest/coverage-c8": "^0.29.8",
     "binaryen": "^112.0.0",
+    "bufferutil": "^4.0.7",
     "eslint": "^8.37.0",
     "minimist": "^1.2.8",
     "source-map-support": "^0.5.21",
     "typescript": "^5.0.3",
-    "vitest": "^0.29.8"
+    "vitest": "^0.29.8",
+    "ws": "^8.13.0"
   },
   "scripts": {
     "lint": "eslint --cache src --ext ts,js",
     "fix": "eslint --fix src --ext ts,js",
     "compile": "tsc -p .",
-    "build": "npm run compile",
+    "build": "zig build -p build && npm run compile",
+    "start": "node build/bin",
     "test": "vitest src/pkg",
-    "test:integration": "vitest src/test",
-    "postinstall": "zig build -p build"
+    "test:integration": "vitest src/test"
   },
   "jest": {
     "collectCoverageFrom": [ "src/pkg/*.ts"],

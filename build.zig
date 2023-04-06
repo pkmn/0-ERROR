@@ -7,53 +7,31 @@ pub fn build(b: *std.Build) !void {
     const release = if (std.os.getenv("DEBUG_PKMN_ENGINE")) |_| false else true;
     const target = std.zig.CrossTarget{};
 
-    const BIN = try std.fs.path.join(b.allocator, &[_][]const u8{ "node_modules", ".bin" });
-    const NODE_MODULES = try std.fs.path.join(
-        b.allocator,
-        &[_][]const u8{ "node_modules", "@pkmn", "@engine", "build" },
-    );
+    const NODE_MODULES = b.pathJoin(&.{ "node_modules", "@pkmn", "@engine", "build" });
 
     const showdown =
         b.option(bool, "showdown", "Enable Pokémon Showdown compatibility mode") orelse false;
     const module = pkmn.module(b, .{ .showdown = showdown }); // FIXME plumb through optimize mode
 
-    if (b.findProgram(&[_][]const u8{"install-pkmn-engine"}, &[_][]const u8{BIN})) |install| {
-        const options = b.fmt("--options=-Dtrace{s}", .{if (showdown) " -Dshowdown" else ""});
-        const sh = b.addSystemCommand(&[_][]const u8{ install, options });
-        b.getInstallStep().dependOn(&sh.step);
-    } else |_| {
-        try std.io.getStdErr().writeAll("Cannot find install-pkmn-engine - run `npm install`\n");
-        std.process.exit(1);
-    }
-
-    const node = if (b.findProgram(&[_][]const u8{"node"}, &[_][]const u8{})) |path| path else |_| {
+    const node = if (b.findProgram(&.{"node"}, &.{})) |path| path else |_| {
         try std.io.getStdErr().writeAll("Cannot find node\n");
         std.process.exit(1);
     };
     var node_headers = headers: {
-        var headers = try std.fs.path.resolve(
-            b.allocator,
-            &[_][]const u8{ node, "..", "..", "include", "node" },
-        );
-        var node_h = try std.fs.path.join(b.allocator, &[_][]const u8{ headers, "node.h" });
+        var headers = resolve(b, &.{ node, "..", "..", "include", "node" });
+        var node_h = b.pathJoin(&.{ headers, "node.h" });
         if (try exists(headers)) break :headers headers;
-        headers = try std.fs.path.resolve(
-            b.allocator,
-            &[_][]const u8{ NODE_MODULES, "include" },
-        );
-        node_h = try std.fs.path.join(b.allocator, &[_][]const u8{ headers, "node.h" });
+        headers = resolve(b, &.{ NODE_MODULES, "include" });
+        node_h = b.pathJoin(&.{ headers, "node.h" });
         if (try exists(headers)) break :headers headers;
         try std.io.getStdErr().writeAll("Cannot find node headers\n");
         std.process.exit(1);
     };
     const windows = (try std.zig.system.NativeTargetInfo.detect(target)).target.os.tag == .windows;
     const node_import_lib = if (windows) lib: {
-        var lib = try std.fs.path.resolve(b.allocator, &[_][]const u8{ node, "..", "node.lib" });
+        var lib = resolve(b, &.{ node, "..", "node.lib" });
         if (try exists(lib)) break :lib lib;
-        lib = try std.fs.path.resolve(
-            b.allocator,
-            &[_][]const u8{ NODE_MODULES, "lib", "node.lib" },
-        );
+        lib = resolve(b, &.{ NODE_MODULES, "lib", "node.lib" });
         if (try exists(lib)) break :lib lib;
         try std.io.getStdErr().writeAll("Cannot find node import lib\n");
         std.process.exit(1);
@@ -73,19 +51,15 @@ pub fn build(b: *std.Build) !void {
     addon.linker_allow_shlib_undefined = true;
     if (release) {
         addon.strip = true;
-        if (b.findProgram(&[_][]const u8{"strip"}, &[_][]const u8{})) |strip| {
+        if (b.findProgram(&.{"strip"}, &.{})) |strip| {
             if (builtin.os.tag != .macos) {
-                const sh = b.addSystemCommand(&[_][]const u8{ strip, "-s" });
+                const sh = b.addSystemCommand(&.{ strip, "-s" });
                 sh.addArtifactArg(addon);
                 b.getInstallStep().dependOn(&sh.step);
             }
         } else |_| {}
     }
-    // FIXME: dont shell out...
-    const cp = b.addSystemCommand(&[_][]const u8{"cp"});
-    cp.addArtifactArg(addon);
-    cp.addArg("build/lib/addon.node");
-    b.getInstallStep().dependOn(&cp.step);
+    b.getInstallStep().dependOn(&InstallAddonStep.create(b, addon).step);
 
     const wasm = b.addSharedLibrary(.{
         .name = "addon",
@@ -99,8 +73,8 @@ pub fn build(b: *std.Build) !void {
     wasm.rdynamic = true;
     if (release) {
         wasm.strip = true;
-        if (b.findProgram(&[_][]const u8{"wasm-opt"}, &[_][]const u8{BIN})) |opt| {
-            const sh = b.addSystemCommand(&[_][]const u8{ opt, "-O4" });
+        if (b.findProgram(&.{"wasm-opt"}, &.{b.pathJoin(&.{ "node_modules", ".bin" })})) |opt| {
+            const sh = b.addSystemCommand(&.{ opt, "-O4" });
             sh.addArtifactArg(wasm);
             sh.addArg("-o");
             sh.addFileSourceArg(.{ .path = "build/lib/addon.wasm" });
@@ -139,9 +113,52 @@ pub fn build(b: *std.Build) !void {
     b.step("test", "Run all tests").dependOn(if (test_no_exec) &tests.step else &tests.run().step);
 }
 
+fn resolve(b: *std.Build, paths: []const []const u8) []u8 {
+    return std.fs.path.resolve(b.allocator, paths) catch @panic("OOM");
+}
+
 fn exists(path: []const u8) !bool {
     return if (std.fs.accessAbsolute(path, .{})) |_| true else |err| switch (err) {
         error.FileNotFound => false,
         else => return err,
     };
 }
+
+const InstallAddonStep = struct {
+    b: *std.Build,
+    step: std.Build.Step,
+    artifact: *std.Build.CompileStep,
+    dir: std.Build.InstallDir,
+
+    fn create(b: *std.Build, artifact: *std.Build.CompileStep) *InstallAddonStep {
+        const self = b.allocator.create(InstallAddonStep) catch unreachable;
+        const dir = std.Build.InstallDir{ .lib = {} };
+        self.* = .{
+            .b = b,
+            .step = std.build.Step.init(.{
+                .id = .custom,
+                .name = "install addon",
+                .owner = b,
+                .makeFn = make,
+            }),
+            .artifact = artifact,
+            .dir = dir,
+        };
+        self.step.dependOn(&artifact.step);
+        b.pushInstalledFile(dir, "addon.node");
+        return self;
+    }
+
+    fn make(step: *std.Build.Step, _: *std.Progress.Node) !void {
+        const self = @fieldParentPtr(InstallAddonStep, "step", step);
+        const src = self.artifact.getOutputSource().getPath(self.b);
+        const dst = self.b.getInstallPath(self.dir, "addon.node");
+        const cwd = std.fs.cwd();
+        const p = std.fs.Dir.updateFile(cwd, src, cwd, dst, .{}) catch |err| {
+            return step.fail("unable to update file from '{s}' to '{s}': {s}", .{
+                src, dst, @errorName(err),
+            });
+        };
+        step.result_cached = p == .fresh;
+    }
+};
