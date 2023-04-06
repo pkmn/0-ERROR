@@ -30,4 +30,4 @@ jobs:
       - run: mv pkmn-ai-latest.tgz web.tar.gz
       - run: gh release delete latest --cleanup-tag --yes
         continue-on-error: true
-      - run: gh release create latest --prerelease --title Latest web.tar.gz
+      - run: gh release create latest -p -t Latest -n https://pkmn.cc/0-ERROR/releases/download/latest/web.tar.gz web.tar.gz
