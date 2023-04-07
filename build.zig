@@ -10,7 +10,12 @@ pub fn build(b: *std.Build) !void {
     const showdown =
         b.option(bool, "showdown", "Enable Pokémon Showdown compatibility mode") orelse false;
     const module = pkmn.module(b, .{ .showdown = showdown });
-    b.getInstallStep().dependOn(&InstallEngineStep.create(b, showdown).step);
+
+    const BIN = b.pathJoin(&.{ "node_modules", ".bin" });
+    const install = b.findProgram(&.{"install-pkmn-engine"}, &.{BIN}) catch unreachable;
+    const options = b.fmt("--options=-Dtrace{s}", .{if (showdown) " -Dshowdown" else ""});
+    const engine = b.addSystemCommand(&[_][]const u8{ install, options }); // TODO: "--silent"
+    b.getInstallStep().dependOn(&engine.step);
 
     const NODE_MODULES = b.pathJoin(&.{ "node_modules", "@pkmn", "@engine", "build" });
     const node = if (b.findProgram(&.{"node"}, &.{})) |path| path else |_| {
@@ -73,7 +78,7 @@ pub fn build(b: *std.Build) !void {
     wasm.rdynamic = true;
     if (release) {
         wasm.strip = true;
-        if (b.findProgram(&.{"wasm-opt"}, &.{b.pathJoin(&.{ "node_modules", ".bin" })})) |opt| {
+        if (b.findProgram(&.{"wasm-opt"}, &.{BIN})) |opt| {
             const sh = b.addSystemCommand(&.{ opt, "-O4" });
             sh.addArtifactArg(wasm);
             sh.addArg("-o");
@@ -123,44 +128,6 @@ fn exists(path: []const u8) !bool {
         else => return err,
     };
 }
-
-const InstallEngineStep = struct {
-    b: *std.Build,
-    step: std.Build.Step,
-    showdown: bool,
-
-    fn create(b: *std.Build, showdown: bool) *InstallEngineStep {
-        const self = b.allocator.create(InstallEngineStep) catch unreachable;
-        self.* = .{
-            .b = b,
-            .step = std.build.Step.init(.{
-                .id = .custom,
-                .name = "install engine",
-                .owner = b,
-                .makeFn = make,
-            }),
-            .showdown = showdown,
-        };
-        return self;
-    }
-
-    fn make(step: *std.Build.Step, _: *std.Progress.Node) !void {
-        const self = @fieldParentPtr(InstallEngineStep, "step", step);
-        const install = self.b.findProgram(
-            &.{"install-pkmn-engine"},
-            &.{self.b.pathJoin(&.{ "node_modules", ".bin" })},
-        ) catch unreachable;
-        const options =
-            self.b.fmt("--options=-Dtrace{s}", .{if (self.showdown) " -Dshowdown" else ""});
-
-        var child = std.ChildProcess.init(&.{ install, options }, self.b.allocator);
-        child.stdout_behavior = std.ChildProcess.StdIo.Ignore;
-        child.stderr_behavior = std.ChildProcess.StdIo.Ignore;
-        _ = child.spawnAndWait() catch |err| {
-            return step.fail("failed run install-pkmn-engine: {s}", .{@errorName(err)});
-        };
-    }
-};
 
 const InstallAddonStep = struct {
     b: *std.Build,
