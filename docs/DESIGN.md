@@ -3,16 +3,19 @@
 
 ### Build
 
-```ts
-// TODO:
-//
-// pkmn/engine/libpkmn.node/wasm = only used testing/training, should NOT be bundled
-// build/addon.node = *IS* and extended libpkmn
-//
-// - not configurable, just release or no based on DEBUG_PKMN_ENGINE env var
-// - run node_modules/.bin/install-pkmn-engine with -Dtrace and showdown based on -Dshowdown=false|true
-// depend on node headers and libs being in specific places
-```
+- integrated with its own custom compiled version of @pkmn/engine, addons are a superset
+- @pkmn/engine ALSO used for testing/training (installed with -Dtrace by default) - so BOTH addon.node/wasm and libpkmn.node/wasm can be active at the same time
+- not configurable, always release (unless DEBUG_PKMN_ENGINE is set)
+- pkmn engine
+  -  `internal` exposes wasm/node bindings helpers to avoid duplication
+  - `Battle` stores an addon that contains all the methods for it - even better = dynamically bind all of the methods so allow for extension
+
+
+| Option     | Description                                                                                                                       |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `advance`  | Turn any spurious RNG advances into nops                                                                                          |
+| `ebc`      | Only enforce the 1000 turn limit restriction of the [Endless Battle Clause](https://dex.pokemonshowdown.com/articles/battlerules) |
+| `internal` | Provides access to internal engine data methods and data structures                                                               |
 
 ### Algorithm
 
@@ -55,7 +58,7 @@ Sharing state from past runs in worker + start operating on old predictor pools 
 ### Tree
 
 The search tree is stored in a fixed-size (**TODO** constant) buffer in order to avoid dynamic
-allocation overhead and space spent on pointers (i.e. instead of requiring 8 byte pointers, indexes
+allocation overhead and space spent on po inters (i.e. instead of requiring 8 byte pointers, indexes
 into the buffer need to only be 2-4 bytes). Each time a node in the tree is allocated we reserve
 space for handles to all potential children (which for single battles before Generation VI is 11
 options - `pass`, `move 0` - `move 4`, `switch 2` - `switch 6`) and use a simple mapping function to

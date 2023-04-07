@@ -24,3 +24,4 @@ dist/
 
 # Project
 src/lib/*/data/teams.db
+config.json
