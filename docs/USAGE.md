@@ -19,7 +19,7 @@ npm start
   "id": "showdown",
   "server": "sim.smogon.com",
   "port": "8000",
-  "username": "O ERROR",
+  "username": "0 ERROR",
   "password": "1H3rdUl13kmuDk1pZ",
 }
 ```
