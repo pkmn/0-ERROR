@@ -1,4 +1,4 @@
-name: Tests
+name: CI
 on:
   schedule:
     - cron: '0 2 * * *'
@@ -10,22 +10,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      # Setup
       - uses: actions/checkout@v3
       - uses: goto-bus-stop/setup-zig@v2
       - run: npm install
-      # Test
-      - run: zig build test
-      - run: npm run compile
-      - run: npm test
-      - run: npm run lint
-      - run: zig build lint
-      # Release
+      - run: npm run integration
       - run: npm pack
       - run: mv pkmn-ai-latest.tgz web.tar.gz
       - run: gh release delete latest --cleanup-tag --yes

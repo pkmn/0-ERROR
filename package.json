@@ -36,13 +36,22 @@
     "ws": "^8.13.0"
   },
   "scripts": {
-    "lint": "eslint --cache src --ext ts,js",
-    "fix": "eslint --fix src --ext ts,js",
-    "compile": "tsc -p .",
-    "build": "zig build -p build && npm run compile",
-    "start": "node build/bin",
-    "test": "vitest src/pkg",
-    "test:integration": "vitest src/test"
+    "js:lint": "eslint --cache src --ext ts,js",
+    "js:fix": "eslint --fix src --ext ts,js",
+    "js:build": "tsc -p .",
+    "js:test": "vitest src/pkg",
+    "zig:lint": "zig build lint",
+    "zig:fix": "zig fmt .",
+    "zig:build": "zig build -p build",
+    "zig:test": "zig build test -fsummary",
+    "lint": "npm run zig:lint && npm run js:lint",
+    "fix": "npm run zig:fix && npm run js:fix",
+    "build": "npm run zig:build && npm run js:build",
+    "test": "npm run zig:test && npm run js:test",
+    "test:integration": "vitest src/test",
+    "integration": "npm run build && npm run test && npm run lint",
+    "prestart": "npm run build",
+    "start": "node build/bin"
   },
   "jest": {
     "collectCoverageFrom": [ "src/pkg/*.ts"],
