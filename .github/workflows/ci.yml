@@ -20,7 +20,7 @@ jobs:
       - run: npm install
       - run: npm run integration
       - run: npm pack
-      - run: mv pkmn-ai-latest.tgz web.tar.gz
+      - run: mv pkmn-ai-latest.tgz 0-ERROR.tar.gz
       - run: gh release delete latest --cleanup-tag --yes
         continue-on-error: true
-      - run: gh release create latest -p -t Latest -n https://pkmn.cc/0-ERROR/releases/download/latest/web.tar.gz web.tar.gz
+      - run: gh release create latest -p -t Latest -n https://pkmn.cc/0-ERROR.tar.gz web.tar.gz
