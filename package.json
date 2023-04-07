@@ -11,7 +11,7 @@
     "build/pkg/index.js",
     "build/pkg/index.js.map"
   ],
-  "engines": {"node": ">=16.0.0"},
+  "engines": {"node": ">=18.0.0"},
   "dependencies": {
     "@pkmn/data": "^0.7.35",
     "@pkmn/engine": "^0.1.0-dev.84cc1a02",
@@ -20,6 +20,7 @@
   "devDependencies": {
     "@pkmn/dex": "^0.7.35",
     "@pkmn/eslint-config": "^3.0.0",
+    "@pkmn/login": "^0.1.0",
     "@types/jest": "^29.5.0",
     "@types/minimist": "^1.2.2",
     "@types/node": "^18.15.11",
