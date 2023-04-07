@@ -14,7 +14,7 @@
   "engines": {"node": ">=18.0.0"},
   "dependencies": {
     "@pkmn/data": "^0.7.35",
-    "@pkmn/engine": "^0.1.0-dev.84cc1a02",
+    "@pkmn/engine": "^0.1.0-dev.b9fb6eab",
     "@pkmn/sets": "^5.0.4"
   },
   "devDependencies": {

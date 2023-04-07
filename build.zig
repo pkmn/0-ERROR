@@ -8,13 +8,13 @@ pub fn build(b: *std.Build) !void {
     const target = std.zig.CrossTarget{};
 
     const showdown =
-        b.option(bool, "showdown", "Enable Pokémon Showdown compatibility mode") orelse false;
+        b.option(bool, "showdown", "Enable Pokémon Showdown compatibility mode") orelse true;
     const module = pkmn.module(b, .{ .showdown = showdown });
 
     const BIN = b.pathJoin(&.{ "node_modules", ".bin" });
     const install = b.findProgram(&.{"install-pkmn-engine"}, &.{BIN}) catch unreachable;
     const options = b.fmt("--options=-Dtrace{s}", .{if (showdown) " -Dshowdown" else ""});
-    const engine = b.addSystemCommand(&[_][]const u8{ install, options }); // TODO: "--silent"
+    const engine = b.addSystemCommand(&[_][]const u8{ install, options, "--silent" });
     b.getInstallStep().dependOn(&engine.step);
 
     const NODE_MODULES = b.pathJoin(&.{ "node_modules", "@pkmn", "@engine", "build" });
