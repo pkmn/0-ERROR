@@ -72,6 +72,11 @@
 - **Ensemble Monte-Carlo Planning: An Empirical Study**
 - **Mastering the Game of Stratego with Model-Free Multiagent Reinforcement Learning**
 - **Matrix games with bandit feedback**
+- **From Poincaré Recurrence to Convergence in Imperfect Information Games:
+  Finding Equilibrium via Regularization**
+- **Efficiently Updatable Neural-Network-based Evaluation Functions for Computer
+  Shogi**
+- **Enumeration of Nash equilibria for two-player games**
 
 ## Pokémon
 

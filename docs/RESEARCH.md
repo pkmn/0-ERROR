@@ -87,6 +87,11 @@
 - [Mastering the Game of Stratego with Model-Free Multiagent Reinforcement
   Learning](deepmind-stratego.pdf)
 - [Matrix games with bandit feedback](papers/matrix-bandit.pdf)
+- [From Poincaré Recurrence to Convergence in Imperfect Information Games:
+  Finding Equilibrium via Regularization](papers/equilibrium.pdf)
+- [Efficiently Updatable Neural-Network-based Evaluation Functions for Computer
+  Shogi](papers/nnue.pdf)
+- [Enumeration of Nash equilibria for two-player games](papers/nash.pdf)
 
 ## Pokémon
 
