@@ -86,36 +86,29 @@ pub fn build(b: *std.Build) !void {
             b.getInstallStep().dependOn(&sh.step);
         } else |_| {}
     }
-    wasm.install();
+    b.installArtifact(wasm);
 
     const test_file = b.option([]const u8, "test-file", "Input file for test") orelse
         "src/lib/test.zig";
-    const test_bin = b.option([]const u8, "test-bin", "Emit test binary to");
     const test_filter =
         b.option([]const u8, "test-filter", "Skip tests that do not match filter");
-    const test_no_exec =
-        b.option(bool, "test-no-exec", "Compiles test binary without running it") orelse false;
 
     const tests = b.addTest(.{
         .name = std.fs.path.basename(std.fs.path.dirname(test_file).?),
         .root_source_file = .{ .path = test_file },
         .optimize = if (release) .ReleaseSafe else .Debug,
         .target = target,
+        .filter = test_filter,
     });
     tests.setMainPkgPath("./");
-    tests.setFilter(test_filter);
     tests.single_threaded = true;
-    if (test_bin) |bin| {
-        tests.name = std.fs.path.basename(bin);
-        if (std.fs.path.dirname(bin)) |dir| tests.setOutputDir(dir);
-    }
 
     const lint_exe =
         b.addExecutable(.{ .name = "lint", .root_source_file = .{ .path = "src/tools/lint.zig" } });
-    const lint = lint_exe.run();
+    const lint = b.addRunArtifact(lint_exe);
 
     b.step("lint", "Lint source files").dependOn(&lint.step);
-    b.step("test", "Run all tests").dependOn(if (test_no_exec) &tests.step else &tests.run().step);
+    b.step("test", "Run all tests").dependOn(&b.addRunArtifact(tests).step);
 }
 
 fn resolve(b: *std.Build, paths: []const []const u8) []u8 {
