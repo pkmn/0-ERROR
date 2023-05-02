@@ -4,7 +4,7 @@
 ### Build
 
 - integrated with its own custom compiled version of @pkmn/engine, addons are a superset
-- @pkmn/engine ALSO used for testing/training (installed with -Dtrace by default) - so BOTH addon.node/wasm and libpkmn.node/wasm can be active at the same time
+- @pkmn/engine ALSO used for testing/training (installed with -Dlog by default) - so BOTH addon.node/wasm and libpkmn.node/wasm can be active at the same time
 - not configurable, always release (unless DEBUG_PKMN_ENGINE is set)
 - pkmn engine
   -  `internal` exposes wasm/node bindings helpers to avoid duplication

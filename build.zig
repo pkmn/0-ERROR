@@ -13,7 +13,7 @@ pub fn build(b: *std.Build) !void {
 
     const BIN = b.pathJoin(&.{ "node_modules", ".bin" });
     const install = b.findProgram(&.{"install-pkmn-engine"}, &.{BIN}) catch unreachable;
-    const options = b.fmt("--options=-Dtrace{s}", .{if (showdown) " -Dshowdown" else ""});
+    const options = b.fmt("--options=-Dlog{s}", .{if (showdown) " -Dshowdown" else ""});
     const engine = b.addSystemCommand(&[_][]const u8{ install, options, "--silent" });
     b.getInstallStep().dependOn(&engine.step);
 
