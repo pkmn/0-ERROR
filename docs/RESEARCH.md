@@ -48,6 +48,8 @@
 - [Understanding the Success of Perfect Information Monte Carlo Sampling in Game Tree
   Search](papers/mcts-pimc.pdf)
 - [MCTS Based on Simple Regret](papers/mcts-regret.pdf)
+- [Online Monte Carlo Counterfactual Regret Minimization for Search in Imperfect
+  Information Games](papers/mcts-crm.pdf)
 - [jbradberry/mcts](https://github.com/jbradberry/mcts)
 - [int8/monte-carlo-tree-search](https://github.com/int8/monte-carlo-tree-search)
   - [Monte Carlo Tree Search - beginners
@@ -55,6 +57,10 @@
 - [A Deep Dive into Monte Carlo Tree Search](https://www.moderndescartes.com/essays/deep_dive_mcts/)
 - [Analysis of Hannan Consistent Selection for Monte Carlo Tree Search in Simultaneous Move
   Games](papers/mcts-hannan.pdf)
+- [Alpha-Beta Pruning for Games with Simultaneous Moves](papers/sm-ab.pdf)
+- [Using Double-Oracle Method and Serialized Alpha-Beta Search for Pruning in
+  Simultaneous Move Games](papers/double-oracle-ab.pdf)
+- [Monte Carlo Tree Search Variants for Simultaneous Move Games](papers/sm-mcts-variants.pdf)
 
 ### Parallel
 
@@ -92,10 +98,12 @@
 - [Efficiently Updatable Neural-Network-based Evaluation Functions for Computer
   Shogi](papers/nnue.pdf)
 - [Enumeration of Nash equilibria for two-player games](papers/nash.pdf)
+- [Player of Games](papers/player-of-games.pdf)
 
 ## Pokémon
 
 - [Future Sight AI](https://www.pokemonbattlepredictor.com/FSAI)
+- [Surskit](https://github.com/baskuit/surskit) ([Taurus](https://github.com/baskuit/taurus))
 - [aturfah/poke2vec](https://github.com/aturfah/poke2vec)
   - [Poke2Vec: Vector Embeddings of Pokemon](https://aturfah.github.io/poke2vec/)
 - [yuzeh/metagrok](https://github.com/yuzeh/metagrok)

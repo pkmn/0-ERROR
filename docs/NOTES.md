@@ -39,12 +39,18 @@
 - **Confidence Bound Algorithms in Game Trees**
 - **Understanding the Success of Perfect Information Monte Carlo Sampling in Game Tree Search**
 - **MCTS Based on Simple Regret**
+- **Online Monte Carlo Counterfactual Regret Minimization for Search in
+  Imperfect Information Games**
 - **jbradberry/mcts**
 - **int8/monte-carlo-tree-search**
   - **Monte Carlo Tree Search - beginners guide**
 - **A Deep Dive into Monte Carlo Tree Search**
 - **Analysis of Hannan Consistent Selection for Monte Carlo Tree Search in Simultaneous Move
   Games**
+- **Alpha-Beta Pruning for Games with Simultaneous Moves**
+- **Using Double-Oracle Method and Serialized Alpha-Beta Search for Pruning in
+  Simultaneous Move Games**
+- **Monte Carlo Tree Search Variants for Simultaneous Move Games**
 
 ### Parallel
 
@@ -77,6 +83,7 @@
 - **Efficiently Updatable Neural-Network-based Evaluation Functions for Computer
   Shogi**
 - **Enumeration of Nash equilibria for two-player games**
+- **Player of Games**
 
 ## Pokémon
 
@@ -94,6 +101,7 @@
   - acheived ELO of 1547 (1630 max) in `gen8ou` (just outside of top 500), 100% win rate against
     random AI
   - relies on approximate inverse damage formula to determine opponent's stats
+- **Surskit** (**Taurus**)
 - **aturfah/poke2vec**
   - **Poke2Vec: Vector Embeddings of Pokemon**
 - **yuzeh/metagrok**
