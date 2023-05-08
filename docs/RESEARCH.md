@@ -61,6 +61,17 @@
 - [Using Double-Oracle Method and Serialized Alpha-Beta Search for Pruning in
   Simultaneous Move Games](papers/double-oracle-ab.pdf)
 - [Monte Carlo Tree Search Variants for Simultaneous Move Games](papers/sm-mcts-variants.pdf)
+- [Information capture and reuse strategies in Monte Carlo Tree
+  Search, with applications to games of hidden information](papers/icarus-epic.pdf)
+- [Re-determinizing Information Set Monte Carlo Tree Search in
+  Hanabi](papers/redeterminizing-ismcts.pdf)
+- [Monte Carlo Sampling for Regret Minimization in Extensive
+  Games](papers/mcts-regret-minimization.pdf)
+- [Ensemble Determinization in Monte Carlo Tree Search for the Imperfect Information Card Game
+  Magic: The Gathering](papers/mcts-mtg.pdf)
+- [Improving Hearthstone AI by Combining MCTS and Supervised Learning
+  Algorithms](mcts-hearthstone.pdf)
+- [N-Grams and the Last-Good-Reply Policy applied in General Game Playing](papers/mcts-ngrams.pdf)
 
 ### Parallel
 
@@ -99,6 +110,10 @@
   Shogi](papers/nnue.pdf)
 - [Enumeration of Nash equilibria for two-player games](papers/nash.pdf)
 - [Player of Games](papers/player-of-games.pdf)
+- [Symmetry Detection in General Game Playing](papers/ggp-symmetry.pdf)
+- [Iterated Regret Minimization: A New Solution Concept](papers/iterated-regret.pdf)
+- [Online Monte Carlo Counterfactual Regret Minimization for Search in Imperfect Information
+  Games](papers/online-cfr.pdf)
 
 ## Pokémon
 
