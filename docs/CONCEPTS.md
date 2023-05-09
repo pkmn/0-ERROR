@@ -24,7 +24,7 @@ Client
 
 - perspective
 - login in (challenges, ladder) = PROTOCOL.md
-- parse SIM-PROTOCOl and build up client representation (perceived/observed representation)
+- parse SIM-PROTOCOL and build up client representation (perceived/observed representation)
  
 Inference
 - constraint satisfaction
