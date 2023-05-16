@@ -24,6 +24,7 @@
   Algorithms](mcts-hearthstone.pdf)
 - [N-Grams and the Last-Good-Reply Policy applied in General Game Playing](papers/mcts-ngrams.pdf)
 - [Symmetry Detection in General Game Playing](papers/ggp-symmetry.pdf)
+- [Monte-Carlo Tree Search Solver](papers/mcts-solver.pdf)
   
 ### Information
 
@@ -40,6 +41,7 @@
   Hanabi](papers/redeterminizing-ismcts.pdf)
 - [Ensemble Determinization in Monte Carlo Tree Search for the Imperfect Information Card Game
   Magic: The Gathering](papers/mcts-mtg.pdf)
+- [Limited Lookahead in Imperfect-Information Games](papers/lookahead.pdf)
 
 ### Simultaneous
 
@@ -157,3 +159,12 @@
   - [Percymon: A Pokemon Showdown Artificial Intelligence](papers/pkmn-percymon.pdf)
 - [Implementation and Evaluation of Information Set Monte Carlo Tree Search for
   Pokemon](papers/pkmn-ismcts.pdf)
+
+## Miscellaneous
+
+- [Darts, Dice, and Coins: Sampling from a Discrete
+  Distribution](https://www.keithschwarz.com/darts-dice-coins/)
+- [Heaps for incremental
+  computation](http://timvieira.github.io/blog/post/2016/11/21/heaps-for-incremental-computation/)
+  - [Fast sampling from an evolving
+    distribution](https://gist.github.com/timvieira/da31b56436045a3122f5adf5aafec515)
