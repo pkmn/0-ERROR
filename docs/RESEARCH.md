@@ -1,77 +1,60 @@
-## AlphaGo
-
-- [Playing Atari with Deep Reinforcement Learning](papers/deepmind-atari.pdf)
-- [Move Evaluation in Go Using Deep Convolutional Neural Networks](papers/deepmind-alphago-dcnn.pdf)
-- [Mastering the game of Go with deep neural networks and tree search](papers/deepmind-alphago.pdf)
-- [Mastering the game of Go without human
-  knowledge](https://www.nature.com/articles/nature24270.epdf)
-- [Training Deep Convolutional Neural Networks to Play Go](papers/cnn-go.pdf)
-- [Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning
-  Algorithm](papers/deepmind-alphazero.pdf)
-- [Lessons From Implementing AlphaZero](https://medium.com/oracledevs/7e36e9054191)
-- [Better computer Go player with neural network and long-term
-  prediction](papers/facebook-darkforest.pdf)
-- [Exploration exploitation in Go: UCT for Monte-Carlo Go](papers/mcts-uct.pdf)
-- [brilee/MuGo](https://github.com/brilee/MuGo)
-- [tensorflow/minigo](https://github.com/tensorflow/minigo)
-- [pytorch/ELF](https://github.com/pytorch/ELF)
-- [leela-zero/leela-zero](https://github.com/leela-zero/leela-zero)
-- [LeelaChessZero/lc0](https://github.com/LeelaChessZero/lc0)
-- [suragnair/alpha-zero-general](https://github.com/suragnair/alpha-zero-general)
-  - [Learning to Play Othello Without Human Knowledge](papers/othello.pdf)
-  - [A Simple Alpha(Go) Zero Tutorial](https://web.stanford.edu/~surag/posts/alphazero.html)
-
 ## MCTS
 
-- [A Survey of Monte Carlo Tree Search Methods](papers/mcts-survey.pdf)
-- [Monte-Carlo Tree Search](papers/mcts.pdf)
-- [Monte Carlo Tree Search: a review of recent modifications and
+> - [A Survey of Monte Carlo Tree Search Methods](papers/mcts-survey.pdf)
+> - [Monte Carlo Tree Search: a review of recent modifications and
   applications](papers/mcts-review.pdf)
+
+- [Monte-Carlo Tree Search](papers/mcts.pdf)
+- [Exploration exploitation in Go: UCT for Monte-Carlo Go](papers/mcts-uct.pdf)
 - [Efficient Selectivity and Backup Operators in Monte-Carlo Tree Search](papers/mcts-select.pdf)
+- [Information capture and reuse strategies in Monte Carlo Tree
+  Search, with applications to games of hidden information](papers/icarus-epic.pdf)
+- [MCTS-Minimix Hybrids](papers/mcts-minimax.pdf)
+- [Memory-Augmented Monte Carlo Tree Search](papers/mcts-memory.pdf)
+- [Thompson Sampling for Monte Carlo Tree Search and Maxi-min Action
+  Identification](papers/mcts-thompson.pdf)
+- [Confidence Bound Algorithms in Game Trees](papers/mcts-cba.pdf)
+- [jbradberry/mcts](https://github.com/jbradberry/mcts)
+- [int8/monte-carlo-tree-search](https://github.com/int8/monte-carlo-tree-search)
+  - [Monte Carlo Tree Search - beginners
+    guide](https://int8.io/monte-carlo-tree-search-beginners-guide/)
+- [A Deep Dive into Monte Carlo Tree Search](https://www.moderndescartes.com/essays/deep_dive_mcts/)
+- [Lower Bounding Klondike Solitaire with Monte-Carlo Planning](papers/klondike.pdf)
+- [Improving Hearthstone AI by Combining MCTS and Supervised Learning
+  Algorithms](mcts-hearthstone.pdf)
+- [N-Grams and the Last-Good-Reply Policy applied in General Game Playing](papers/mcts-ngrams.pdf)
+- [Symmetry Detection in General Game Playing](papers/ggp-symmetry.pdf)
+  
+### Information
+
 - [Information Set Monte Carlo Tree Search](papers/information-set-mcts.pdf)
 - [Reducing the burden of knowledge: Simulation-based methods in imperfect information
   games](http://www.aifactory.co.uk/newsletter/2013_01_reduce_burden.htm)
   - [Information Set Monte Carlo Tree Search](https://gist.github.com/kjlubick/8ea239ede6a026a61f4d)
+- [Search in games with incomplete information: a case study using Bridge card
+  play](papers/bridge-study.pdf)
 - [Multiple Tree for Partially Observable Monte-Carlo Tree Search](papers/multiple-pomcts.pdf)
+- [Understanding the Success of Perfect Information Monte Carlo Sampling in Game Tree
+  Search](papers/mcts-pimc.pdf)
+- [Re-determinizing Information Set Monte Carlo Tree Search in
+  Hanabi](papers/redeterminizing-ismcts.pdf)
+- [Ensemble Determinization in Monte Carlo Tree Search for the Imperfect Information Card Game
+  Magic: The Gathering](papers/mcts-mtg.pdf)
+
+### Simultaneous
+
 - [Monte-Carlo Tree Search for the Simultaneous Move Game Tron](papers/tron-mcts.pdf)
 - [Monte Carlo Tree Search for Simultaneous Move Games: A Case Study in the Game of
   Tron](papers/tron-mcts-casestudy.pdf)
 - [Comparison of Different Selection Strategies in Monte-Carlo Tree Search for the Game of
   Tron](papers/tron-mcts-comparison.pdf)
 - [Convergence of Monte Carlo Tree Search in Simultaneous Move Games](papers/simulataneous-mcts.pdf)
-- [MCTS-Minimix Hybrids](papers/mcts-minimax.pdf)
-- [Time Management for Monte Carlo Tree Search](papers/mcts-time.pdf)
-- [Memory-Augmented Monte Carlo Tree Search](papers/mcts-memory.pdf)
-- [Thompson Sampling for Monte Carlo Tree Search and Maxi-min Action
-  Identification](papers/mcts-thompson.pdf)
-- [Confidence Bound Algorithms in Game Trees](papers/mcts-cba.pdf)
-- [Understanding the Success of Perfect Information Monte Carlo Sampling in Game Tree
-  Search](papers/mcts-pimc.pdf)
-- [MCTS Based on Simple Regret](papers/mcts-regret.pdf)
-- [Online Monte Carlo Counterfactual Regret Minimization for Search in Imperfect
-  Information Games](papers/mcts-crm.pdf)
-- [jbradberry/mcts](https://github.com/jbradberry/mcts)
-- [int8/monte-carlo-tree-search](https://github.com/int8/monte-carlo-tree-search)
-  - [Monte Carlo Tree Search - beginners
-    guide](https://int8.io/monte-carlo-tree-search-beginners-guide/)
-- [A Deep Dive into Monte Carlo Tree Search](https://www.moderndescartes.com/essays/deep_dive_mcts/)
 - [Analysis of Hannan Consistent Selection for Monte Carlo Tree Search in Simultaneous Move
   Games](papers/mcts-hannan.pdf)
 - [Alpha-Beta Pruning for Games with Simultaneous Moves](papers/sm-ab.pdf)
 - [Using Double-Oracle Method and Serialized Alpha-Beta Search for Pruning in
   Simultaneous Move Games](papers/double-oracle-ab.pdf)
 - [Monte Carlo Tree Search Variants for Simultaneous Move Games](papers/sm-mcts-variants.pdf)
-- [Information capture and reuse strategies in Monte Carlo Tree
-  Search, with applications to games of hidden information](papers/icarus-epic.pdf)
-- [Re-determinizing Information Set Monte Carlo Tree Search in
-  Hanabi](papers/redeterminizing-ismcts.pdf)
-- [Monte Carlo Sampling for Regret Minimization in Extensive
-  Games](papers/mcts-regret-minimization.pdf)
-- [Ensemble Determinization in Monte Carlo Tree Search for the Imperfect Information Card Game
-  Magic: The Gathering](papers/mcts-mtg.pdf)
-- [Improving Hearthstone AI by Combining MCTS and Supervised Learning
-  Algorithms](mcts-hearthstone.pdf)
-- [N-Grams and the Last-Good-Reply Policy applied in General Game Playing](papers/mcts-ngrams.pdf)
 
 ### Parallel
 
@@ -81,39 +64,78 @@
 - [Structured Parallel Programming for Monte Carlo Tree Search](papers/structured-parallel-mcts.pdf)
 - [A Lock-free Multithreaded Monte-Carlo Tree Search Algorithm](papers/lockfree-mcts.pdf)
 - [Scalable Distributed Monte-Carlo Tree Search](papers/distributed-mcts.pdf)
+- [Ensemble Monte-Carlo Planning: An Empirical Study](papers/ensemble-mc.pdf)
 
-## Miscellaneous
+### Neural Networks
 
-- [Comparing UCT versus CFR in Simultaneous Games](papers/uct-vs-cfr.pdf)
-- [Heads-up Limit Hold’em Poker is Solved](papers/poker-solved.pdf)
-- [A Tutorial on Thomson Sampling](papers/thomson-sampling.pdf)
+- [Move Evaluation in Go Using Deep Convolutional Neural Networks](papers/deepmind-alphago-dcnn.pdf)
+- [Mastering the game of Go with deep neural networks and tree search](papers/deepmind-alphago.pdf)
+- [Mastering the game of Go without human
+  knowledge](https://www.nature.com/articles/nature24270.epdf)
+- [Training Deep Convolutional Neural Networks to Play Go](papers/cnn-go.pdf)
+- [Efficiently Updatable Neural-Network-based Evaluation Functions for Computer
+  Shogi](papers/nnue.pdf)
+- [Lessons From Implementing AlphaZero](https://medium.com/oracledevs/7e36e9054191)
+- [Better computer Go player with neural network and long-term
+  prediction](papers/facebook-darkforest.pdf)
+- [brilee/MuGo](https://github.com/brilee/MuGo)
+- [tensorflow/minigo](https://github.com/tensorflow/minigo)
+- [pytorch/ELF](https://github.com/pytorch/ELF)
+- [leela-zero/leela-zero](https://github.com/leela-zero/leela-zero)
+- [LeelaChessZero/lc0](https://github.com/LeelaChessZero/lc0)
+- [suragnair/alpha-zero-general](https://github.com/suragnair/alpha-zero-general)
+  - [Learning to Play Othello Without Human Knowledge](papers/othello.pdf)
+  - [A Simple Alpha(Go) Zero Tutorial](https://web.stanford.edu/~surag/posts/alphazero.html)
+
+## Reinforcement Learning
+
+- [Playing Atari with Deep Reinforcement Learning](papers/deepmind-atari.pdf)
+- [Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning
+  Algorithm](papers/deepmind-alphazero.pdf)
+- [From Poincaré Recurrence to Convergence in Imperfect Information Games:
+  Finding Equilibrium via Regularization](papers/equilibrium.pdf)
+- [Mastering the Game of Stratego with Model-Free Multiagent Reinforcement
+  Learning](deepmind-stratego.pdf)
+
+## Time Management
+
+- [Time Management for Monte Carlo Tree Search](papers/mcts-time.pdf)
+- [Chess Programming Wiki - Time Management](https://www.chessprogramming.org/Time_Management)
+
+## Bandits
+
 - [Introduction to Thompson Sampling: the Bernoulli
   bandit](https://gdmarmerola.github.io/ts-for-bernoulli-bandit/)
 - [Finite-time Analysis of the Multiarmed Bandit Problem](papers/multiarmed-bandit.pdf)
-- [Regret Minimization in Games with Incomplete Information
-  (CFR)](https://nn.labml.ai/cfr/index.html)
 - [The Multi-Armed Bandit Problem and Its
   Solutions](https://lilianweng.github.io/posts/2018-01-23-multi-armed-bandit/)
-- [Regret Minimization in Games with Incomplete Information](papers/poker-regret.pdf)
-- [Chess Programming Wiki - Time Management](https://www.chessprogramming.org/Time_Management)
-- [Leela Chess — Test40, Test50, and beyond](https://medium.com/@veedrac/c15896becfac)
-- [Search in games with incomplete information: a case study using Bridge card
-  play](papers/bridge-study.pdf)
-- [Lower Bounding Klondike Solitaire with Monte-Carlo Planning](papers/klondike.pdf)
-- [Ensemble Monte-Carlo Planning: An Empirical Study](papers/ensemble-mc.pdf)
-- [Mastering the Game of Stratego with Model-Free Multiagent Reinforcement
-  Learning](deepmind-stratego.pdf)
 - [Matrix games with bandit feedback](papers/matrix-bandit.pdf)
-- [From Poincaré Recurrence to Convergence in Imperfect Information Games:
-  Finding Equilibrium via Regularization](papers/equilibrium.pdf)
-- [Efficiently Updatable Neural-Network-based Evaluation Functions for Computer
-  Shogi](papers/nnue.pdf)
-- [Enumeration of Nash equilibria for two-player games](papers/nash.pdf)
+- [A Tutorial on Thomson Sampling](papers/thomson-sampling.pdf)
+
+## Regret
+
 - [Player of Games](papers/player-of-games.pdf)
-- [Symmetry Detection in General Game Playing](papers/ggp-symmetry.pdf)
-- [Iterated Regret Minimization: A New Solution Concept](papers/iterated-regret.pdf)
 - [Online Monte Carlo Counterfactual Regret Minimization for Search in Imperfect Information
   Games](papers/online-cfr.pdf)
+- [Monte Carlo Sampling for Regret Minimization in Extensive
+  Games](papers/mcts-regret-minimization.pdf)
+- [Regret Minimization in Games with Incomplete Information](papers/poker-regret.pdf)
+- [Iterated Regret Minimization: A New Solution Concept](papers/iterated-regret.pdf)
+- [Comparing UCT versus CFR in Simultaneous Games](papers/uct-vs-cfr.pdf)
+- [Heads-up Limit Hold’em Poker is Solved](papers/poker-solved.pdf)
+- [Regret Minimization in Games with Incomplete Information
+  (CFR)](https://nn.labml.ai/cfr/index.html)
+- [MCTS Based on Simple Regret](papers/mcts-regret.pdf)
+- [Online Monte Carlo Counterfactual Regret Minimization for Search in Imperfect
+  Information Games](papers/mcts-crm.pdf)
+
+## Games
+
+- [Gambit: Software Tools for Game Theory](http://www.gambit-project.org/)
+- [Enumeration of Nash equilibria for two-player games](papers/nash.pdf)
+  - [lrsnash](http://cgm.cs.mcgill.ca/~avis/C/lrs.html)
+- [lemke-howson - Implementation of the Lemke-Howson algorithm for finding
+  MNE](https://github.com/s3rvac/lemke-howson)
 
 ## Pokémon
 
