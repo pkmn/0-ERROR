@@ -78,6 +78,7 @@
 - [Efficiently Updatable Neural-Network-based Evaluation Functions for Computer
   Shogi](papers/nnue.pdf)
 - [Lessons From Implementing AlphaZero](https://medium.com/oracledevs/7e36e9054191)
+- [Monte-Carlo Graph Search for AlphaZero](papers/mcgs.pdf)
 - [Better computer Go player with neural network and long-term
   prediction](papers/facebook-darkforest.pdf)
 - [brilee/MuGo](https://github.com/brilee/MuGo)
