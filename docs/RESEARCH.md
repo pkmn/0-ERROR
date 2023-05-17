@@ -21,7 +21,7 @@
 - [A Deep Dive into Monte Carlo Tree Search](https://www.moderndescartes.com/essays/deep_dive_mcts/)
 - [Lower Bounding Klondike Solitaire with Monte-Carlo Planning](papers/klondike.pdf)
 - [Improving Hearthstone AI by Combining MCTS and Supervised Learning
-  Algorithms](mcts-hearthstone.pdf)
+  Algorithms](papers/mcts-hearthstone.pdf)
 - [N-Grams and the Last-Good-Reply Policy applied in General Game Playing](papers/mcts-ngrams.pdf)
 - [Symmetry Detection in General Game Playing](papers/ggp-symmetry.pdf)
 - [Monte-Carlo Tree Search Solver](papers/mcts-solver.pdf)
