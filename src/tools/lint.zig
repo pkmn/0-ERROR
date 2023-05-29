@@ -92,7 +92,7 @@ fn lintDir(
 
     var dir_it = iterable_dir.iterate();
     while (try dir_it.next()) |entry| {
-        const is_dir = entry.kind == .Directory;
+        const is_dir = entry.kind == .directory;
         if (is_dir or std.mem.endsWith(u8, entry.name, ".zig")) {
             const full_path = try fs.path.join(allocator, &[_][]const u8{ file_path, entry.name });
             defer allocator.free(full_path);
