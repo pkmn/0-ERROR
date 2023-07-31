@@ -44,15 +44,15 @@ pub fn build(b: *std.Build) !void {
 
     const addon = b.addSharedLibrary(.{
         .name = "addon",
+        .main_pkg_path = .{ .path = "." },
         .root_source_file = .{ .path = "src/lib/binding/node.zig" },
         .optimize = if (release) .ReleaseFast else .Debug,
         .target = target,
     });
     addon.addModule("pkmn", module);
-    addon.setMainPkgPath("./");
-    addon.addSystemIncludePath(node_headers);
+    addon.addSystemIncludePath(.{ .path = node_headers });
     addon.linkLibC();
-    if (node_import_lib) |il| addon.addObjectFile(il);
+    if (node_import_lib) |il| addon.addObjectFile(.{ .path = il });
     addon.linker_allow_shlib_undefined = true;
     if (release) {
         addon.strip = true;
@@ -64,16 +64,18 @@ pub fn build(b: *std.Build) !void {
             }
         } else |_| {}
     }
-    b.getInstallStep().dependOn(&InstallAddonStep.create(b, addon).step);
+    b.getInstallStep().dependOn(
+        &b.addInstallFileWithDir(addon.getEmittedBin(), .lib, "addon.node").step,
+    );
 
     const wasm = b.addSharedLibrary(.{
         .name = "addon",
+        .main_pkg_path = .{ .path = "." },
         .root_source_file = .{ .path = "src/lib/binding/wasm.zig" },
         .optimize = if (release) .ReleaseSmall else .Debug,
         .target = .{ .cpu_arch = .wasm32, .os_tag = .freestanding },
     });
     wasm.addModule("pkmn", module);
-    wasm.setMainPkgPath("./");
     wasm.stack_size = std.wasm.page_size;
     wasm.rdynamic = true;
     if (release) {
@@ -95,12 +97,12 @@ pub fn build(b: *std.Build) !void {
 
     const tests = b.addTest(.{
         .name = std.fs.path.basename(std.fs.path.dirname(test_file).?),
+        .main_pkg_path = .{ .path = "." },
         .root_source_file = .{ .path = test_file },
         .optimize = if (release) .ReleaseSafe else .Debug,
         .target = target,
         .filter = test_filter,
     });
-    tests.setMainPkgPath("./");
     tests.single_threaded = true;
 
     const lint_exe =
@@ -121,42 +123,3 @@ fn exists(path: []const u8) !bool {
         else => return err,
     };
 }
-
-const InstallAddonStep = struct {
-    b: *std.Build,
-    step: std.Build.Step,
-    artifact: *std.Build.CompileStep,
-    dir: std.Build.InstallDir,
-
-    fn create(b: *std.Build, artifact: *std.Build.CompileStep) *InstallAddonStep {
-        const self = b.allocator.create(InstallAddonStep) catch unreachable;
-        const dir = std.Build.InstallDir{ .lib = {} };
-        self.* = .{
-            .b = b,
-            .step = std.build.Step.init(.{
-                .id = .custom,
-                .name = "install addon",
-                .owner = b,
-                .makeFn = make,
-            }),
-            .artifact = artifact,
-            .dir = dir,
-        };
-        self.step.dependOn(&artifact.step);
-        b.pushInstalledFile(dir, "addon.node");
-        return self;
-    }
-
-    fn make(step: *std.Build.Step, _: *std.Progress.Node) !void {
-        const self = @fieldParentPtr(InstallAddonStep, "step", step);
-        const src = self.artifact.getOutputSource().getPath(self.b);
-        const dst = self.b.getInstallPath(self.dir, "addon.node");
-        const cwd = std.fs.cwd();
-        const p = std.fs.Dir.updateFile(cwd, src, cwd, dst, .{}) catch |err| {
-            return step.fail("unable to update file from '{s}' to '{s}': {s}", .{
-                src, dst, @errorName(err),
-            });
-        };
-        step.result_cached = p == .fresh;
-    }
-};
