@@ -105,9 +105,7 @@ pub fn build(b: *std.Build) !void {
     });
     tests.single_threaded = true;
 
-    const lint_exe =
-        b.addExecutable(.{ .name = "lint", .root_source_file = .{ .path = "src/tools/lint.zig" } });
-    const lint = b.addRunArtifact(lint_exe);
+    const lint = b.addSystemCommand(&.{"ziglint"});
 
     b.step("lint", "Lint source files").dependOn(&lint.step);
     b.step("test", "Run all tests").dependOn(&b.addRunArtifact(tests).step);

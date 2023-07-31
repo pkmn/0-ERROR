@@ -17,6 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: goto-bus-stop/setup-zig@v2
+      - uses: AnnikaCodes/install-ziglint@v0.1
       - run: npm install
       - run: npm run integration
       - run: npm pack
