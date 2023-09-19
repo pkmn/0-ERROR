@@ -99,6 +99,7 @@
   Finding Equilibrium via Regularization](papers/equilibrium.pdf)
 - [Mastering the Game of Stratego with Model-Free Multiagent Reinforcement
   Learning](deepmind-stratego.pdf)
+- [Accelerating Self-Play Learning in Go](papers/accelerating-self-play.pdf)
 
 ## Time Management
 
@@ -114,6 +115,7 @@
   Solutions](https://lilianweng.github.io/posts/2018-01-23-multi-armed-bandit/)
 - [Matrix games with bandit feedback](papers/matrix-bandit.pdf)
 - [A Tutorial on Thomson Sampling](papers/thomson-sampling.pdf)
+- [Multi-armed Bandits with Episode Context](papers/bandit-episodes.pdf)
 
 ## Regret
 
