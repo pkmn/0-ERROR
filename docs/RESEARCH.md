@@ -42,6 +42,9 @@
 - [Ensemble Determinization in Monte Carlo Tree Search for the Imperfect Information Card Game
   Magic: The Gathering](papers/mcts-mtg.pdf)
 - [Limited Lookahead in Imperfect-Information Games](papers/lookahead.pdf)
+- [Safe and Nested Subgame Solving for Imperfect-Information Games](papers/subgame-solving.pdf)
+- [Solving Imperfect Information Games Using Decomposition](papers/subgame-decomposition.pdf)
+- [Rethinking Formal Models of Partially Observable Multiagent Decision Making](papers/podm.pdf)
 
 ### Simultaneous
 
@@ -119,6 +122,7 @@
 
 ## Regret
 
+- [An Introduction to Counterfactual Regret Minimization](papers/cfr-intro.pdf)
 - [Player of Games](papers/player-of-games.pdf)
 - [Online Monte Carlo Counterfactual Regret Minimization for Search in Imperfect Information
   Games](papers/online-cfr.pdf)
