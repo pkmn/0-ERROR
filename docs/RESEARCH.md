@@ -148,6 +148,8 @@
 
 ## Pokémon
 
+- [Teamwork under extreme uncertainty: AI for Pokemon ranks 33rd in the
+  world](papers/pkmn-athena.pdf)
 - [Future Sight AI](https://www.pokemonbattlepredictor.com/FSAI)
 - [Surskit](https://github.com/baskuit/surskit) ([Taurus](https://github.com/baskuit/taurus))
 - [aturfah/poke2vec](https://github.com/aturfah/poke2vec)
