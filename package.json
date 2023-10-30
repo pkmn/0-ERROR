@@ -54,20 +54,6 @@
     "prestart": "npm run build",
     "start": "node build/bin/bot"
   },
-  "jest": {
-    "collectCoverageFrom": [ "src/pkg/*.ts"],
-    "coverageDirectory": "coverage/js",
-    "coverageProvider": "v8",
-    "verbose": false,
-    "testEnvironment": "node",
-    "testPathIgnorePatterns": ["node_modules/", "build/", "lib/"]
-  },
-  "babel": {
-    "presets": [
-        "@babel/preset-typescript",
-        ["@babel/preset-env", {"targets": {"node": "current"}}]
-    ]
-  },
   "eslintConfig": {
     "extends": "@pkmn",
     "rules": {
