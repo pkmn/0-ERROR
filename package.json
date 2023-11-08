@@ -14,17 +14,17 @@
   "engines": {"node": ">=18.0.0"},
   "dependencies": {
     "@pkmn/data": "^0.7.55",
-    "@pkmn/engine": "0.1.0-dev.4f7cbb89",
+    "@pkmn/engine": "0.1.0-dev.b05836cd",
     "@pkmn/sets": "^5.1.0"
   },
   "devDependencies": {
     "@pkmn/dex": "^0.7.55",
     "@pkmn/eslint-config": "^6.0.0",
     "@pkmn/login": "^0.1.0",
-    "@types/jest": "^29.5.7",
-    "@types/minimist": "^1.2.4",
-    "@types/node": "^20.8.10",
-    "@types/ws": "^8.5.8",
+    "@types/jest": "^29.5.8",
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^20.9.0",
+    "@types/ws": "^8.5.9",
     "@vitest/coverage-c8": "^0.33.0",
     "binaryen": "^116.0.0",
     "bufferutil": "^4.0.8",

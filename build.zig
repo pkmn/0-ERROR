@@ -68,7 +68,7 @@ pub fn build(b: *std.Build) !void {
         &b.addInstallFileWithDir(addon.getEmittedBin(), .lib, "addon.node").step,
     );
 
-    const wasm = b.addSharedLibrary(.{
+    const wasm = b.addExecutable(.{
         .name = "addon",
         .main_pkg_path = .{ .path = "." },
         .root_source_file = .{ .path = "src/lib/binding/wasm.zig" },
@@ -76,9 +76,11 @@ pub fn build(b: *std.Build) !void {
         .target = .{ .cpu_arch = .wasm32, .os_tag = .freestanding },
     });
     wasm.addModule("pkmn", module);
+    wasm.export_symbol_names = &[_][]const u8{};
+    wasm.entry = .disabled;
     wasm.stack_size = std.wasm.page_size;
-    wasm.rdynamic = true;
-    if (release) {
+
+    const installed = if (release) installed: {
         wasm.strip = true;
         if (b.findProgram(&.{"wasm-opt"}, &.{BIN})) |opt| {
             const sh = b.addSystemCommand(&.{ opt, "-O4" });
@@ -86,9 +88,14 @@ pub fn build(b: *std.Build) !void {
             sh.addArg("-o");
             sh.addFileSourceArg(.{ .path = "build/lib/addon.wasm" });
             b.getInstallStep().dependOn(&sh.step);
-        } else |_| {}
+            break :installed true;
+        } else |_| break :installed false;
+    } else false;
+    if (!installed) {
+        b.getInstallStep().dependOn(&b.addInstallArtifact(wasm, .{
+            .dest_dir = .{ .override = std.Build.InstallDir{ .lib = {} } },
+        }).step);
     }
-    b.installArtifact(wasm);
 
     const test_file = b.option([]const u8, "test-file", "Input file for test") orelse
         "src/lib/test.zig";
