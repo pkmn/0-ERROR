@@ -8,10 +8,12 @@
 </p>
 <hr />
 
-**0 ERROR** [is](https://en.wikipedia.org/wiki/Vaporware) a competitive Pokémon battling AI based
-around [Monte Carlo tree search (MCTS)](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) and
-battle state evaluation heuristics. 0 ERROR relies on [EPOké](https://github.com/pkmn/EPOke)'s
-enhanced battle state tracking and prediction capabilities as well as an optimized battle simulation
+**0 ERROR** (named after a [famous glitch in Generation
+I](https://bulbapedia.bulbagarden.net/wiki/0_ERROR), while also alluding to flawless play)
+[is](https://pkmn.cc/vaporware.png) a competitive Pokémon battling AI based on concepts from [state
+of the art research](https://pkmn.ai) that aims to achieve superhuman performance with minimal
+resource usage. 0 ERROR relies on EPOké's enhanced battle state tracking and prediction capabilities
+to improve its perceived information set as well as an optimized battle simulation
 [engine](https://github.com/pkmn/engine) and enables offline play in the
 [PocketMon](https://github.com/pkmn/PocketMon) client UI.
 
