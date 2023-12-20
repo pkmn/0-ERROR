@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: goto-bus-stop/setup-zig@v2
       - uses: AnnikaCodes/install-ziglint@v0.1
-      - run: npm install
+      - run: npm ci
       - run: npm run integration
       - run: npm pack
       - run: mv pkmn-ai-latest.tgz 0-ERROR.tar.gz
