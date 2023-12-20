@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: 0 ERROR
+type: software
+authors:
+  - given-names: Kirk
+    family-names: Scheibelhut
+    email: pre@pkmn.cc
+    orcid: 'https://orcid.org/0009-0004-7829-4237'
+license: CC BY-NC-ND 4.0
+url: 'https://pkmn.cc/0-ERROR'
+repository-code: 'https://github.com/pkmn/0-ERROR'
+repository-artifact: 'https://github.com/pkmn/0-ERROR/releases/'
+abstract: >-
+  0 ERROR is a competitive Pokémon battling AI based on concepts from state of
+  the art research that aims to achieve superhuman performance with minimal
+  resource usage. 0 ERROR relies on EPOké's enhanced battle state tracking and
+  prediction capabilities to improve its perceived information set as well as an
+  optimized battle simulation engine and enables offline play in the PocketMon
+  client UI.
