@@ -14,8 +14,8 @@ I](https://bulbapedia.bulbagarden.net/wiki/0_ERROR), while also alluding to flaw
 of the art research](https://pkmn.ai) that aims to achieve superhuman performance with minimal
 resource usage. 0 ERROR relies on EPOké's enhanced battle state tracking and prediction capabilities
 to improve its perceived information set as well as an optimized battle simulation
-[engine](https://github.com/pkmn/engine) and enables offline play in the
-[PocketMon](https://github.com/pkmn/PocketMon) client UI.
+[engine](https://github.com/pkmn/engine) to accelerate search and evaluation and enables offline
+play in the [PocketMon](https://github.com/pkmn/PocketMon) client UI.
 
 ## License
 
