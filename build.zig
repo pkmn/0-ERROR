@@ -3,8 +3,10 @@ const builtin = @import("builtin");
 
 const pkmn = @import("node_modules/@pkmn/engine/build.zig");
 
+const getenv = if (@hasDecl(std, "posix")) std.posix.getenv else std.os.getenv;
+
 pub fn build(b: *std.Build) !void {
-    const release = if (std.os.getenv("DEBUG_PKMN_ENGINE")) |_| false else true;
+    const release = if (getenv("DEBUG_PKMN_ENGINE")) |_| false else true;
     const target = b.resolveTargetQuery(.{});
 
     const showdown =
